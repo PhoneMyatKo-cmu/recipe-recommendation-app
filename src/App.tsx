@@ -1,12 +1,7 @@
-import './App.css'
+import SearchPage from './pages/SearchPage'
 
 function App() {
-
-  return (
-    <>
-<h4 className="text-3xl font-bold text-blue-600 italic">Tailwind works</h4>
-    </>
-  )
+  return <SearchPage />
 }
 
 export default App
