@@ -13,12 +13,13 @@ type RecipeDetailResponse = {
 
 type RecipeDetailModalProps = {
   recipeId: number
+  token?: string | null
   onClose: () => void
 }
 
 const API_BASE_URL = 'http://127.0.0.1:8000'
 
-function RecipeDetailModal({ recipeId, onClose }: RecipeDetailModalProps) {
+function RecipeDetailModal({ recipeId, token, onClose }: RecipeDetailModalProps) {
   const [recipe, setRecipe] = useState<RecipeDetailResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -31,7 +32,11 @@ function RecipeDetailModal({ recipeId, onClose }: RecipeDetailModalProps) {
       setError(null)
 
       try {
-        const response = await fetch(`${API_BASE_URL}/recipes/${recipeId}`)
+        const response = await fetch(`${API_BASE_URL}/recipes/${recipeId}`, {
+          headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        })
         if (!response.ok) {
           let message = 'Failed to load recipe details.'
           try {
@@ -69,7 +74,7 @@ function RecipeDetailModal({ recipeId, onClose }: RecipeDetailModalProps) {
     return () => {
       isMounted = false
     }
-  }, [recipeId])
+  }, [recipeId, token])
 
   useEffect(() => {
     const originalOverflow = document.body.style.overflow
