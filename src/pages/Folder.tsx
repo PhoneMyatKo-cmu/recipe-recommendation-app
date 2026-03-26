@@ -7,21 +7,14 @@ type FolderResponse = {
   created_at: string
 }
 
-type BookmarkItem = {
-  bookmark_id: number
-  recipe_id: number
-  folder_id: number | null
-  rating: number | null
-  created_at?: string
-}
-
 type FolderPageProps = {
   token: string | null
+  onOpenFolder: (folderId: number) => void
 }
 
 const API_BASE_URL = 'http://127.0.0.1:8000'
 
-function Folder({ token }: FolderPageProps) {
+function Folder({ token, onOpenFolder }: FolderPageProps) {
   const [folders, setFolders] = useState<FolderResponse[]>([])
   const [isLoadingFolders, setIsLoadingFolders] = useState(false)
   const [folderError, setFolderError] = useState<string | null>(null)
@@ -34,11 +27,6 @@ function Folder({ token }: FolderPageProps) {
   const [isUpdating, setIsUpdating] = useState(false)
 
   const [deletingFolderId, setDeletingFolderId] = useState<number | null>(null)
-
-  const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null)
-  const [bookmarks, setBookmarks] = useState<BookmarkItem[]>([])
-  const [isLoadingBookmarks, setIsLoadingBookmarks] = useState(false)
-  const [bookmarkError, setBookmarkError] = useState<string | null>(null)
 
   const getAuthHeaders = useCallback(
     (includeJson = false): HeadersInit => ({
@@ -77,27 +65,6 @@ function Folder({ token }: FolderPageProps) {
       setIsLoadingFolders(false)
     }
   }, [getAuthHeaders])
-
-  const loadFolderBookmarks = async (folderId: number) => {
-    setIsLoadingBookmarks(true)
-    setBookmarkError(null)
-    try {
-      const response = await fetch(`${API_BASE_URL}/bookmarks?folder_id=${folderId}`, {
-        headers: getAuthHeaders(),
-      })
-      if (!response.ok) {
-        throw new Error(await getErrorMessage(response, 'Failed to load folder contents.'))
-      }
-
-      const data = (await response.json()) as BookmarkItem[]
-      setBookmarks(Array.isArray(data) ? data : [])
-    } catch (error) {
-      setBookmarkError(error instanceof Error ? error.message : 'Failed to load folder contents.')
-      setBookmarks([])
-    } finally {
-      setIsLoadingBookmarks(false)
-    }
-  }
 
   useEffect(() => {
     if (!token) {
@@ -179,11 +146,6 @@ function Folder({ token }: FolderPageProps) {
       if (!response.ok) {
         throw new Error(await getErrorMessage(response, 'Failed to delete folder.'))
       }
-
-      if (selectedFolderId === folderId) {
-        setSelectedFolderId(null)
-        setBookmarks([])
-      }
       await loadFolders()
     } catch (error) {
       setFolderError(error instanceof Error ? error.message : 'Failed to delete folder.')
@@ -192,24 +154,13 @@ function Folder({ token }: FolderPageProps) {
     }
   }
 
-  const handleViewContents = async (folderId: number) => {
-    if (selectedFolderId === folderId) {
-      setSelectedFolderId(null)
-      setBookmarks([])
-      return
-    }
-
-    setSelectedFolderId(folderId)
-    await loadFolderBookmarks(folderId)
-  }
-
   return (
     <main className="min-h-screen bg-gradient-to-b from-orange-50 via-amber-50 to-slate-100 px-4 py-10">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
         <header className="space-y-2">
           <p className="text-sm font-semibold uppercase tracking-wide text-amber-700">Folders</p>
           <h1 className="text-4xl font-bold tracking-tight text-slate-900">Manage your folders</h1>
-          <p className="text-slate-600">Create, rename, delete folders and inspect their bookmarks.</p>
+          <p className="text-slate-600">Create, rename, delete folders and open a folder detail page.</p>
         </header>
 
         <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -250,7 +201,6 @@ function Folder({ token }: FolderPageProps) {
               {folders.map((folder) => {
                 const isEditing = editingFolderId === folder.folder_id
                 const isDeleting = deletingFolderId === folder.folder_id
-                const isOpen = selectedFolderId === folder.folder_id
 
                 return (
                   <article key={folder.folder_id} className="rounded-xl border border-slate-200 p-4">
@@ -274,10 +224,10 @@ function Folder({ token }: FolderPageProps) {
                       <div className="flex flex-wrap gap-2">
                         <button
                           type="button"
-                          onClick={() => handleViewContents(folder.folder_id)}
+                          onClick={() => onOpenFolder(folder.folder_id)}
                           className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
                         >
-                          {isOpen ? 'Hide Contents' : 'View Contents'}
+                          View Folder Detail
                         </button>
 
                         {isEditing ? (
@@ -321,32 +271,6 @@ function Folder({ token }: FolderPageProps) {
                         </button>
                       </div>
                     </div>
-
-                    {isOpen && (
-                      <section className="mt-4 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3">
-                        <h4 className="mb-2 text-sm font-semibold text-slate-800">Bookmarks</h4>
-                        {isLoadingBookmarks ? (
-                          <p className="text-sm text-slate-600">Loading contents...</p>
-                        ) : bookmarkError ? (
-                          <p className="text-sm font-medium text-red-700">{bookmarkError}</p>
-                        ) : bookmarks.length === 0 ? (
-                          <p className="text-sm text-slate-600">This folder is empty.</p>
-                        ) : (
-                          <ul className="space-y-2">
-                            {bookmarks.map((bookmark) => (
-                              <li
-                                key={bookmark.bookmark_id}
-                                className="rounded-lg border border-slate-200 bg-white p-2 text-sm text-slate-700"
-                              >
-                                <p>Bookmark #{bookmark.bookmark_id}</p>
-                                <p>Recipe ID: {bookmark.recipe_id}</p>
-                                <p>Rating: {bookmark.rating ?? '-'}</p>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </section>
-                    )}
                   </article>
                 )
               })}

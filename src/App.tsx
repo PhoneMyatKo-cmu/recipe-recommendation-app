@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import AuthPage, { type AuthMode } from './pages/AuthPage'
 import Folder from './pages/Folder'
+import FolderDetail from './pages/FolderDetail'
 import LandingPage from './pages/LandingPage'
 import SearchPage from './pages/SearchPage'
 
@@ -14,6 +15,15 @@ const API_BASE_URL = 'http://127.0.0.1:8000'
 
 function extractToken(data: AuthResponse): string | null {
   return data.access_token ?? data.token ?? data.bearer_token ?? null
+}
+
+function getFolderIdFromPath(pathname: string): number | null {
+  const match = pathname.match(/^\/folders\/(\d+)$/)
+  if (!match) {
+    return null
+  }
+  const folderId = Number(match[1])
+  return Number.isNaN(folderId) ? null : folderId
 }
 
 function App() {
@@ -173,16 +183,16 @@ function App() {
   }
 
   const authMode: AuthMode = pathname === '/login' ? 'login' : 'register'
+  const folderId = getFolderIdFromPath(pathname)
 
-  const authenticatedPage = useMemo(() => {
-    if (pathname === '/search') {
-      return <SearchPage token={token} />
-    }
-    if (pathname === '/folders') {
-      return <Folder token={token} />
-    }
-    return <LandingPage />
-  }, [pathname, token])
+  let authenticatedPage = <LandingPage />
+  if (folderId !== null) {
+    authenticatedPage = <FolderDetail token={token} folderId={folderId} onBack={() => navigate('/folders')} />
+  } else if (pathname === '/search') {
+    authenticatedPage = <SearchPage token={token} />
+  } else if (pathname === '/folders') {
+    authenticatedPage = <Folder token={token} onOpenFolder={(id) => navigate(`/folders/${id}`)} />
+  }
 
   if (!isAuthenticated) {
     return (

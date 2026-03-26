@@ -11,18 +11,133 @@ type RecipeDetailResponse = {
   steps: string[]
 }
 
+type FolderResponse = {
+  folder_id: number
+  name: string
+}
+
 type RecipeDetailModalProps = {
   recipeId: number
   token?: string | null
+  allowBookmark?: boolean
   onClose: () => void
 }
 
 const API_BASE_URL = 'http://127.0.0.1:8000'
 
-function RecipeDetailModal({ recipeId, token, onClose }: RecipeDetailModalProps) {
+function RecipeDetailModal({ recipeId, token, allowBookmark = true, onClose }: RecipeDetailModalProps) {
   const [recipe, setRecipe] = useState<RecipeDetailResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [showBookmarkPanel, setShowBookmarkPanel] = useState(false)
+  const [folders, setFolders] = useState<FolderResponse[]>([])
+  const [isLoadingFolders, setIsLoadingFolders] = useState(false)
+  const [folderError, setFolderError] = useState<string | null>(null)
+  const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null)
+  const [rating, setRating] = useState(5)
+  const [isSavingBookmark, setIsSavingBookmark] = useState(false)
+  const [bookmarkMessage, setBookmarkMessage] = useState<string | null>(null)
+  const [bookmarkError, setBookmarkError] = useState<string | null>(null)
+
+  const getErrorMessage = async (response: Response, fallback: string) => {
+    try {
+      const data: { detail?: string } = await response.json()
+      return data.detail ?? fallback
+    } catch {
+      return fallback
+    }
+  }
+
+  const loadFolders = async () => {
+    if (!token) {
+      setFolders([])
+      setFolderError('Please login first to bookmark.')
+      return
+    }
+
+    setIsLoadingFolders(true)
+    setFolderError(null)
+    try {
+      const response = await fetch(`${API_BASE_URL}/folders`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      if (!response.ok) {
+        throw new Error(await getErrorMessage(response, 'Failed to load folders.'))
+      }
+
+      const data = (await response.json()) as FolderResponse[]
+      setFolders(data)
+      if (data.length > 0) {
+        setSelectedFolderId(data[0].folder_id)
+      } else {
+        setSelectedFolderId(null)
+      }
+    } catch (requestError) {
+      setFolders([])
+      setSelectedFolderId(null)
+      setFolderError(requestError instanceof Error ? requestError.message : 'Failed to load folders.')
+    } finally {
+      setIsLoadingFolders(false)
+    }
+  }
+
+  const handleToggleBookmarkPanel = async () => {
+    const nextOpen = !showBookmarkPanel
+    setShowBookmarkPanel(nextOpen)
+    setBookmarkMessage(null)
+    setBookmarkError(null)
+    if (nextOpen) {
+      await loadFolders()
+    }
+  }
+
+  const handleCreateBookmark = async () => {
+    if (!token) {
+      setBookmarkError('Please login first to bookmark.')
+      return
+    }
+    if (!recipe) {
+      setBookmarkError('Recipe detail is not loaded yet.')
+      return
+    }
+    if (!selectedFolderId) {
+      setBookmarkError('Please select a folder.')
+      return
+    }
+
+    setIsSavingBookmark(true)
+    setBookmarkError(null)
+    setBookmarkMessage(null)
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/bookmarks`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          recipe_id: recipe.recipe_id,
+          folder_id: selectedFolderId,
+          rating,
+        }),
+      })
+      if (!response.ok) {
+        throw new Error(await getErrorMessage(response, 'Failed to create bookmark.'))
+      }
+
+      setShowBookmarkPanel(false)
+      setBookmarkMessage('Bookmark added successfully.')
+    } catch (requestError) {
+      setBookmarkError(
+        requestError instanceof Error ? requestError.message : 'Failed to create bookmark.',
+      )
+    } finally {
+      setIsSavingBookmark(false)
+    }
+  }
 
   useEffect(() => {
     let isMounted = true
@@ -131,7 +246,84 @@ function RecipeDetailModal({ recipeId, token, onClose }: RecipeDetailModalProps)
                   Recipe #{recipe.recipe_id}
                 </p>
                 <h2 className="text-3xl font-bold text-slate-900">{recipe.name}</h2>
+                {allowBookmark && (
+                  <button
+                    type="button"
+                    onClick={handleToggleBookmarkPanel}
+                    className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-amber-400"
+                  >
+                    {showBookmarkPanel ? 'Hide Bookmark' : 'Bookmark'}
+                  </button>
+                )}
               </header>
+
+              {bookmarkMessage && (
+                <p className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm font-medium text-green-700">
+                  {bookmarkMessage}
+                </p>
+              )}
+              {bookmarkError && (
+                <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+                  {bookmarkError}
+                </p>
+              )}
+
+              {allowBookmark && showBookmarkPanel && (
+                <section className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <h3 className="text-lg font-semibold text-slate-900">Add Bookmark</h3>
+
+                  {isLoadingFolders && <p className="text-sm text-slate-600">Loading folders...</p>}
+                  {!isLoadingFolders && folderError && (
+                    <p className="text-sm font-medium text-red-700">{folderError}</p>
+                  )}
+                  {!isLoadingFolders && !folderError && folders.length === 0 && (
+                    <p className="text-sm text-slate-600">No folders found. Create a folder first.</p>
+                  )}
+
+                  {!isLoadingFolders && folders.length > 0 && (
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+                      <div className="flex-1">
+                        <label className="mb-1 block text-sm font-medium text-slate-700">Folder</label>
+                        <select
+                          value={selectedFolderId ?? ''}
+                          onChange={(event) => setSelectedFolderId(Number(event.target.value))}
+                          className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-slate-800"
+                        >
+                          {folders.map((folder) => (
+                            <option key={folder.folder_id} value={folder.folder_id}>
+                              {folder.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="mb-1 block text-sm font-medium text-slate-700">Rating</label>
+                        <select
+                          value={rating}
+                          onChange={(event) => setRating(Number(event.target.value))}
+                          className="h-10 w-24 rounded-lg border border-slate-300 bg-white px-3 text-slate-800"
+                        >
+                          <option value={1}>1</option>
+                          <option value={2}>2</option>
+                          <option value={3}>3</option>
+                          <option value={4}>4</option>
+                          <option value={5}>5</option>
+                        </select>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleCreateBookmark}
+                        disabled={isSavingBookmark}
+                        className="h-10 rounded-lg bg-slate-900 px-4 text-sm font-semibold text-white hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-70"
+                      >
+                        Save
+                      </button>
+                    </div>
+                  )}
+                </section>
+              )}
 
               <section className="space-y-3">
                 <h3 className="text-xl font-semibold text-slate-900">Ingredients</h3>
