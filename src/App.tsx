@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import AuthPage, { type AuthMode } from './pages/AuthPage'
+import Folder from './pages/Folder'
 import LandingPage from './pages/LandingPage'
 import SearchPage from './pages/SearchPage'
 
@@ -177,6 +178,9 @@ function App() {
     if (pathname === '/search') {
       return <SearchPage token={token} />
     }
+    if (pathname === '/folders') {
+      return <Folder token={token} />
+    }
     return <LandingPage />
   }, [pathname, token])
 
@@ -215,6 +219,13 @@ function App() {
               className="text-sm font-semibold text-slate-900 hover:text-amber-700"
             >
               Search
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/folders')}
+              className="text-sm font-semibold text-slate-900 hover:text-amber-700"
+            >
+              Folder
             </button>
           </div>
           <button
