@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react'
-import AuthPanel from '../components/auth/AuthPanel'
+import { useState } from 'react'
 import RecipeDetailModal from '../components/search/RecipeDetailModal'
 import RecipeResults from '../components/search/RecipeResults'
 import SearchBar from '../components/search/SearchBar'
@@ -16,25 +15,20 @@ type SearchApiResponse = {
 const API_BASE_URL = 'http://127.0.0.1:8000'
 const DEFAULT_TOP_K = 20
 
-function SearchPage() {
+type SearchPageProps = {
+  token: string | null
+}
+
+function SearchPage({ token }: SearchPageProps) {
   const [queryInput, setQueryInput] = useState('')
   const [submittedQuery, setSubmittedQuery] = useState('')
   const [selectedRecipeId, setSelectedRecipeId] = useState<number | null>(null)
-  const [authToken, setAuthToken] = useState<string | null>(() => localStorage.getItem('auth_token'))
   const [results, setResults] = useState<RecipeResult[]>([])
   const [normalizedQuery, setNormalizedQuery] = useState('')
   const [correctedQuery, setCorrectedQuery] = useState<string | null>(null)
   const [spellCorrected, setSpellCorrected] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (authToken) {
-      localStorage.setItem('auth_token', authToken)
-    } else {
-      localStorage.removeItem('auth_token')
-    }
-  }, [authToken])
 
   const handleSubmit = async () => {
     const trimmedQuery = queryInput.trim()
@@ -54,7 +48,7 @@ function SearchPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
           query: trimmedQuery,
@@ -106,8 +100,6 @@ function SearchPage() {
           </p>
         </header>
 
-        <AuthPanel token={authToken} onTokenChange={setAuthToken} />
-
         <SearchBar
           value={queryInput}
           onChange={setQueryInput}
@@ -151,7 +143,7 @@ function SearchPage() {
       {selectedRecipeId !== null && (
         <RecipeDetailModal
           recipeId={selectedRecipeId}
-          token={authToken}
+          token={token}
           onClose={() => setSelectedRecipeId(null)}
         />
       )}
