@@ -20,6 +20,19 @@ type BookmarkItem = {
   created_at: string
 }
 
+type RecommendationItem = {
+  recipe_id: number
+  name: string
+  image_url: string | null
+  score: number
+}
+
+type RecommendationResponse = {
+  mode: string
+  approach: string
+  results: RecommendationItem[]
+}
+
 type FolderDetailProps = {
   token: string | null
   folderId: number
@@ -27,12 +40,17 @@ type FolderDetailProps = {
 }
 
 const API_BASE_URL = 'http://127.0.0.1:8000'
+const DEFAULT_TOP_K = 8
 
 function FolderDetail({ token, folderId, onBack }: FolderDetailProps) {
   const [folder, setFolder] = useState<FolderResponse | null>(null)
   const [bookmarks, setBookmarks] = useState<BookmarkItem[]>([])
   const [selectedRecipeId, setSelectedRecipeId] = useState<number | null>(null)
   const [deletingBookmarkId, setDeletingBookmarkId] = useState<number | null>(null)
+  const [recommendations, setRecommendations] = useState<RecommendationItem[]>([])
+  const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false)
+  const [recommendationError, setRecommendationError] = useState<string | null>(null)
+  const [hasGeneratedSuggestions, setHasGeneratedSuggestions] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -79,6 +97,30 @@ function FolderDetail({ token, folderId, onBack }: FolderDetailProps) {
       setBookmarks([])
     } finally {
       setIsLoading(false)
+    }
+  }, [folderId, getAuthHeaders])
+
+  const loadFolderRecommendations = useCallback(async () => {
+    setIsLoadingRecommendations(true)
+    setRecommendationError(null)
+    setHasGeneratedSuggestions(true)
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/folders/${folderId}/recommendations?top_k=${DEFAULT_TOP_K}`,
+        { headers: getAuthHeaders() },
+      )
+      if (!response.ok) {
+        throw new Error(await getErrorMessage(response, 'Failed to load folder suggestions.'))
+      }
+      const data = (await response.json()) as RecommendationResponse
+      setRecommendations(data.results ?? [])
+    } catch (requestError) {
+      setRecommendationError(
+        requestError instanceof Error ? requestError.message : 'Failed to load folder suggestions.',
+      )
+      setRecommendations([])
+    } finally {
+      setIsLoadingRecommendations(false)
     }
   }, [folderId, getAuthHeaders])
 
@@ -197,6 +239,60 @@ function FolderDetail({ token, folderId, onBack }: FolderDetailProps) {
                     </li>
                   ))}
                 </ul>
+              )}
+            </section>
+
+            <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-slate-900">Generated Suggestions (LSA)</h2>
+                <button
+                  type="button"
+                  onClick={loadFolderRecommendations}
+                  className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                >
+                  {hasGeneratedSuggestions ? 'Generate Again' : 'Generate Suggestions'}
+                </button>
+              </div>
+
+              {isLoadingRecommendations ? (
+                <p className="text-slate-600">Generating suggestions...</p>
+              ) : !hasGeneratedSuggestions ? (
+                <p className="text-slate-600">
+                  Click <span className="font-medium">Generate Suggestions</span> to get folder-based recommendations.
+                </p>
+              ) : recommendationError ? (
+                <p className="text-sm font-medium text-red-700">{recommendationError}</p>
+              ) : recommendations.length === 0 ? (
+                <p className="text-slate-600">No suggestions yet for this folder.</p>
+              ) : (
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {recommendations.map((item) => (
+                    <article
+                      key={item.recipe_id}
+                      className="overflow-hidden rounded-xl border border-slate-200 bg-white"
+                    >
+                      <img
+                        src={
+                          normalizeImageUrl(item.image_url) ??
+                          'https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80'
+                        }
+                        alt={item.name}
+                        className="h-32 w-full object-cover"
+                      />
+                      <div className="space-y-2 p-3">
+                        <h3 className="line-clamp-2 text-sm font-semibold text-slate-900">{item.name}</h3>
+                        <p className="text-xs text-amber-700">Score: {item.score.toFixed(4)}</p>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedRecipeId(item.recipe_id)}
+                          className="rounded-lg border border-slate-300 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                        >
+                          View Detail
+                        </button>
+                      </div>
+                    </article>
+                  ))}
+                </div>
               )}
             </section>
           </>
