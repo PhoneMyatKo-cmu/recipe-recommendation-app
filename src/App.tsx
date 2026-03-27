@@ -185,7 +185,7 @@ function App() {
   const authMode: AuthMode = pathname === '/login' ? 'login' : 'register'
   const folderId = getFolderIdFromPath(pathname)
 
-  let authenticatedPage = <LandingPage />
+  let authenticatedPage = <LandingPage token={token} />
   if (folderId !== null) {
     authenticatedPage = <FolderDetail token={token} folderId={folderId} onBack={() => navigate('/folders')} />
   } else if (pathname === '/search') {
