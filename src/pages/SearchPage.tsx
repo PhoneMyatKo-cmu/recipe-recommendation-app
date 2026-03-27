@@ -30,8 +30,8 @@ function SearchPage({ token }: SearchPageProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = async () => {
-    const trimmedQuery = queryInput.trim()
+  const handleSubmit = async (queryOverride?: string) => {
+    const trimmedQuery = (queryOverride ?? queryInput).trim()
     if (!trimmedQuery) {
       setSubmittedQuery('')
       setResults([])
@@ -110,19 +110,27 @@ function SearchPage({ token }: SearchPageProps) {
         {submittedQuery && (
           <section className="rounded-2xl border border-slate-200 bg-white/80 p-4 text-sm text-slate-700">
             <p>
-              Query: <span className="font-semibold text-slate-900">{submittedQuery}</span>
+              Showing results for:{' '}
+              <span className="font-semibold text-slate-900">"{submittedQuery}"</span>
             </p>
-            {normalizedQuery && (
-              <p>
-                Normalized: <span className="font-semibold text-slate-900">{normalizedQuery}</span>
-              </p>
-            )}
             {spellCorrected && correctedQuery && (
-              <p>
-                Spell corrected to:{' '}
-                <span className="font-semibold text-amber-700">{correctedQuery}</span>
-              </p>
+              <div className="mt-2 border-t border-slate-200 pt-2">
+                <p>
+                  Did you mean:{' '}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setQueryInput(correctedQuery)
+                      handleSubmit(correctedQuery)
+                    }}
+                    className="font-semibold text-amber-700 underline hover:text-amber-800"
+                  >
+                    "{correctedQuery}"
+                  </button>
+                </p>
+              </div>
             )}
+            {normalizedQuery && <p className="mt-1 text-xs text-slate-500">Normalized query: {normalizedQuery}</p>}
           </section>
         )}
 
