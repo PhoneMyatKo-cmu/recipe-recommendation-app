@@ -22,11 +22,13 @@ type FolderItem = {
 type LandingPageProps = {
   token: string | null
 }
+type RecommendationApproach = 'tfidf' | 'lsa'
 
 const API_BASE_URL = 'http://127.0.0.1:8000'
 const DEFAULT_TOP_K = 8
 
 function LandingPage({ token }: LandingPageProps) {
+  const [approach, setApproach] = useState<RecommendationApproach>('tfidf')
   const [folders, setFolders] = useState<FolderItem[]>([])
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null)
 
@@ -79,9 +81,12 @@ function LandingPage({ token }: LandingPageProps) {
     setIsLoadingAll(true)
     setError(null)
     try {
-      const response = await fetch(`${API_BASE_URL}/recommendations/all?top_k=${DEFAULT_TOP_K}`, {
-        headers: getAuthHeaders(),
-      })
+      const response = await fetch(
+        `${API_BASE_URL}/recommendations/all?top_k=${DEFAULT_TOP_K}&approach=${approach}`,
+        {
+          headers: getAuthHeaders(),
+        },
+      )
       if (!response.ok) {
         throw new Error(await getErrorMessage(response, 'Failed to load recommendations from all folders.'))
       }
@@ -97,14 +102,14 @@ function LandingPage({ token }: LandingPageProps) {
     } finally {
       setIsLoadingAll(false)
     }
-  }, [getAuthHeaders])
+  }, [getAuthHeaders, approach])
 
   const loadFolderRecommendations = useCallback(async (folderId: number) => {
     setIsLoadingFolder(true)
     setError(null)
     try {
       const response = await fetch(
-        `${API_BASE_URL}/recommendations/folder/${folderId}?top_k=${DEFAULT_TOP_K}`,
+        `${API_BASE_URL}/recommendations/folder/${folderId}?top_k=${DEFAULT_TOP_K}&approach=${approach}`,
         {
           headers: getAuthHeaders(),
         },
@@ -120,15 +125,18 @@ function LandingPage({ token }: LandingPageProps) {
     } finally {
       setIsLoadingFolder(false)
     }
-  }, [getAuthHeaders])
+  }, [getAuthHeaders, approach])
 
   const loadRandomRecommendations = useCallback(async () => {
     setIsLoadingRandom(true)
     setError(null)
     try {
-      const response = await fetch(`${API_BASE_URL}/recommendations/random?top_k=${DEFAULT_TOP_K}`, {
-        headers: getAuthHeaders(),
-      })
+      const response = await fetch(
+        `${API_BASE_URL}/recommendations/random?top_k=${DEFAULT_TOP_K}&approach=${approach}`,
+        {
+          headers: getAuthHeaders(),
+        },
+      )
       if (!response.ok) {
         throw new Error(await getErrorMessage(response, 'Failed to load random recommendations.'))
       }
@@ -140,7 +148,7 @@ function LandingPage({ token }: LandingPageProps) {
     } finally {
       setIsLoadingRandom(false)
     }
-  }, [getAuthHeaders])
+  }, [getAuthHeaders, approach])
 
   useEffect(() => {
     if (!token) {
@@ -208,6 +216,19 @@ function LandingPage({ token }: LandingPageProps) {
           <p className="text-sm font-semibold uppercase tracking-wide text-amber-700">Recommendations</p>
           <h1 className="text-4xl font-bold text-slate-900">Food Bookmarking & Recommendation</h1>
           <p className="text-slate-600">Three recommendation categories based on your bookmarks and folders.</p>
+          <div className="pt-2">
+            <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
+              Recommendation Approach
+            </label>
+            <select
+              value={approach}
+              onChange={(event) => setApproach(event.target.value as RecommendationApproach)}
+              className="h-10 min-w-40 rounded-lg border border-slate-300 bg-white px-3 text-slate-800"
+            >
+              <option value="tfidf">TF-IDF</option>
+              <option value="lsa">LSA</option>
+            </select>
+          </div>
         </header>
 
         {error && (
