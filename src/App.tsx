@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import AuthPage, { type AuthMode } from './pages/AuthPage'
+import AllBookmarks from './pages/AllBookmarks'
 import Folder from './pages/Folder'
 import FolderDetail from './pages/FolderDetail'
 import LandingPage from './pages/LandingPage'
@@ -229,6 +230,8 @@ function App() {
     authenticatedPage = <SearchPage token={token} />
   } else if (pathname === '/folders') {
     authenticatedPage = <Folder token={token} onOpenFolder={(id) => navigate(`/folders/${id}`)} />
+  } else if (pathname === '/bookmarks') {
+    authenticatedPage = <AllBookmarks token={token} userId={currentUser?.user_id ?? null} />
   }
 
   if (!isAuthenticated) {
@@ -273,6 +276,13 @@ function App() {
               className="rounded-full px-3 py-1.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
             >
               Folder
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/bookmarks')}
+              className="rounded-full px-3 py-1.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
+            >
+              Bookmarks
             </button>
           </div>
           <div className="flex items-center gap-3">
