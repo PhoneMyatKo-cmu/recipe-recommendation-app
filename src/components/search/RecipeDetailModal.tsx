@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { normalizeImageUrl } from '../../utils/imageUrl'
+import { toProxyImageUrl } from '../../utils/imageUrl'
 
 type RecipeDetailResponse = {
   recipe_id: number
@@ -224,8 +224,10 @@ function RecipeDetailModal({ recipeId, token, allowBookmark = true, onClose }: R
   }, [onClose])
 
   const imageSrc = recipe
-    ? normalizeImageUrl(recipe.image_url) ??
+    ? toProxyImageUrl(
+        recipe.image_url,
       'https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1200&q=80'
+      )
     : null
 
   return (
@@ -253,7 +255,7 @@ function RecipeDetailModal({ recipeId, token, allowBookmark = true, onClose }: R
 
         {!isLoading && !error && recipe && (
           <article>
-            {imageSrc && <img src={imageSrc} alt={recipe.name} className="h-72 w-full object-cover" />}
+            {imageSrc && <img src={imageSrc} alt={recipe.name} className="h-72 w-full object-cover" loading='lazy' decoding='async'/>}
 
             <div className="space-y-6 p-6 text-left">
               <header className="space-y-2">

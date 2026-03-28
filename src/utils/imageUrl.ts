@@ -1,3 +1,5 @@
+const API_BASE_URL = 'http://127.0.0.1:8000'
+
 export function normalizeImageUrl(rawUrl: string | null): string | null {
   if (!rawUrl) {
     return null
@@ -19,4 +21,13 @@ export function normalizeImageUrl(rawUrl: string | null): string | null {
   }
 
   return cleaned
+}
+
+export function toProxyImageUrl(rawUrl: string | null, fallbackUrl?: string): string | null {
+  const normalized = normalizeImageUrl(rawUrl) ?? (fallbackUrl ? normalizeImageUrl(fallbackUrl) : null)
+  if (!normalized) {
+    return null
+  }
+
+  return `${API_BASE_URL}/image-proxy/image-proxy?url=${encodeURIComponent(normalized)}`
 }

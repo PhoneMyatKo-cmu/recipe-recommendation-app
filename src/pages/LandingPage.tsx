@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import RecipeDetailModal from '../components/search/RecipeDetailModal'
-import { normalizeImageUrl } from '../utils/imageUrl'
+import { toProxyImageUrl } from '../utils/imageUrl'
 
 type RecommendationItem = {
   recipe_id: number
@@ -186,8 +186,10 @@ function LandingPage({ token }: LandingPageProps) {
           >
             <img
               src={
-                normalizeImageUrl(item.image_url) ??
+                toProxyImageUrl(
+                  item.image_url,
                 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80'
+                ) ?? undefined
               }
               alt={item.name}
               className="h-32 w-full object-cover"
