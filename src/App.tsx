@@ -5,6 +5,7 @@ import EvaluatePage from './pages/EvaluatePage'
 import Folder from './pages/Folder'
 import FolderDetail from './pages/FolderDetail'
 import LandingPage from './pages/LandingPage'
+import RagPage from './pages/RagPage'
 import SearchPage from './pages/SearchPage'
 
 type AuthResponse = {
@@ -63,6 +64,40 @@ function App() {
     } else {
       localStorage.removeItem('auth_token')
       setCurrentUser(null)
+    }
+  }, [token])
+
+  useEffect(() => {
+    const originalFetch = window.fetch
+
+    window.fetch = async (...args) => {
+      const response = await originalFetch(...args)
+
+      const requestUrl =
+        typeof args[0] === 'string'
+          ? args[0]
+          : args[0] instanceof Request
+            ? args[0].url
+            : ''
+
+      const isAuthRoute =
+        requestUrl.includes('/auth/login') ||
+        requestUrl.includes('/auth/register') ||
+        requestUrl.includes('/auth/logout')
+
+      if (token && response.status === 401 && !isAuthRoute) {
+        setToken(null)
+        setAuthError('Session expired. Please login again.')
+        setAuthMessage(null)
+        window.history.pushState({}, '', '/login')
+        setPathname('/login')
+      }
+
+      return response
+    }
+
+    return () => {
+      window.fetch = originalFetch
     }
   }, [token])
 
@@ -235,6 +270,8 @@ function App() {
     authenticatedPage = <AllBookmarks token={token} userId={currentUser?.user_id ?? null} />
   } else if (pathname === '/evaluate') {
     authenticatedPage = <EvaluatePage token={token} />
+  } else if (pathname === '/rag') {
+    authenticatedPage = <RagPage token={token} />
   }
 
   if (!isAuthenticated) {
@@ -293,6 +330,13 @@ function App() {
               className="rounded-full px-3 py-1.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
             >
               Evaluate
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/rag')}
+              className="rounded-full px-3 py-1.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
+            >
+              RAG
             </button>
           </div>
           <div className="flex items-center gap-3">
