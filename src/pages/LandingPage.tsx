@@ -229,6 +229,7 @@ function LandingPage({ token }: LandingPageProps) {
             >
               <option value="tfidf">TF-IDF</option>
               <option value="lsa">LSA</option>
+              <option value="mf"> Matrix Factorization</option>
             </select>
           </div>
         </header>
