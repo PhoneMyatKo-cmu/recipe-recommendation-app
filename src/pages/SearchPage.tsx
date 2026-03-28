@@ -88,27 +88,29 @@ function SearchPage({ token }: SearchPageProps) {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-orange-50 via-amber-50 to-slate-100 px-4 py-10 text-left">
+    <main className="min-h-screen px-4 py-10 text-left">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
-        <header className="space-y-3">
-          <p className="text-sm font-semibold uppercase tracking-wide text-amber-700">Recipe Search</p>
+        <header className="space-y-3 rounded-3xl border border-white/70 bg-white/85 p-6 shadow-lg shadow-slate-900/5 backdrop-blur-xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-600">Recipe Search</p>
           <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
             Find your next meal idea
           </h1>
-          <p className="max-w-2xl text-slate-600">
+          <p className="max-w-2xl text-sm text-slate-600">
             Connected to backend endpoint <code>http://127.0.0.1:8000/search</code>
           </p>
         </header>
 
-        <SearchBar
-          value={queryInput}
-          onChange={setQueryInput}
-          onSubmit={handleSubmit}
-          isLoading={isLoading}
-        />
+        <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5 backdrop-blur-xl">
+          <SearchBar
+            value={queryInput}
+            onChange={setQueryInput}
+            onSubmit={handleSubmit}
+            isLoading={isLoading}
+          />
+        </section>
 
         {submittedQuery && (
-          <section className="rounded-2xl border border-slate-200 bg-white/80 p-4 text-sm text-slate-700">
+          <section className="rounded-3xl border border-white/70 bg-white/85 p-4 text-sm text-slate-700 shadow-sm">
             <p>
               Showing results for:{' '}
               <span className="font-semibold text-slate-900">"{submittedQuery}"</span>
@@ -135,7 +137,7 @@ function SearchPage({ token }: SearchPageProps) {
         )}
 
         {error && (
-          <p className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700">
+          <p className="rounded-3xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700">
             {error}
           </p>
         )}

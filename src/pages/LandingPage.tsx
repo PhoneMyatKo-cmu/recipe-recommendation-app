@@ -210,10 +210,10 @@ function LandingPage({ token }: LandingPageProps) {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-orange-50 via-amber-50 to-slate-100 px-4 py-10">
+    <main className="min-h-screen px-4 py-10">
       <section className="mx-auto flex max-w-6xl flex-col gap-6">
-        <header className="space-y-2 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <p className="text-sm font-semibold uppercase tracking-wide text-amber-700">Recommendations</p>
+        <header className="space-y-2 rounded-3xl border border-white/70 bg-white/85 p-6 shadow-lg shadow-slate-900/5 backdrop-blur-xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-600">Recommendations</p>
           <h1 className="text-4xl font-bold text-slate-900">Food Bookmarking & Recommendation</h1>
           <p className="text-slate-600">Three recommendation categories based on your bookmarks and folders.</p>
           <div className="pt-2">
@@ -237,7 +237,7 @@ function LandingPage({ token }: LandingPageProps) {
           </p>
         )}
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-xl font-semibold text-slate-900">From All Folders</h2>
             <button
@@ -251,7 +251,7 @@ function LandingPage({ token }: LandingPageProps) {
           {renderCards(allRecs, isLoadingAll, 'No recommendations from your bookmarks yet.')}
         </section>
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5">
           <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <h2 className="text-xl font-semibold text-slate-900">From Specific Folder</h2>
             <div className="flex items-end gap-2">
@@ -287,7 +287,7 @@ function LandingPage({ token }: LandingPageProps) {
           {renderCards(folderRecs, isLoadingFolder, 'No recommendations for this folder yet.')}
         </section>
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-xl font-semibold text-slate-900">Random Picks</h2>
             <button

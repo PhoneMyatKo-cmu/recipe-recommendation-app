@@ -155,15 +155,15 @@ function Folder({ token, onOpenFolder }: FolderPageProps) {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-orange-50 via-amber-50 to-slate-100 px-4 py-10">
+    <main className="min-h-screen px-4 py-10">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
-        <header className="space-y-2">
-          <p className="text-sm font-semibold uppercase tracking-wide text-amber-700">Folders</p>
+        <header className="space-y-2 rounded-3xl border border-white/70 bg-white/85 p-6 shadow-lg shadow-slate-900/5 backdrop-blur-xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-600">Folders</p>
           <h1 className="text-4xl font-bold tracking-tight text-slate-900">Manage your folders</h1>
           <p className="text-slate-600">Create, rename, delete folders and open a folder detail page.</p>
         </header>
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5">
           <div className="flex flex-col gap-3 sm:flex-row">
             <input
               type="text"
@@ -189,7 +189,7 @@ function Folder({ token, onOpenFolder }: FolderPageProps) {
           </p>
         )}
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5">
           <h2 className="mb-4 text-xl font-semibold text-slate-900">Your folders</h2>
 
           {isLoadingFolders ? (
@@ -203,7 +203,7 @@ function Folder({ token, onOpenFolder }: FolderPageProps) {
                 const isDeleting = deletingFolderId === folder.folder_id
 
                 return (
-                  <article key={folder.folder_id} className="rounded-xl border border-slate-200 p-4">
+                  <article key={folder.folder_id} className="rounded-2xl border border-slate-200/70 bg-white p-4">
                     <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                       <div className="space-y-1">
                         {isEditing ? (

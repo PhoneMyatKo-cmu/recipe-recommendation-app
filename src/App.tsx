@@ -11,6 +11,14 @@ type AuthResponse = {
   bearer_token?: string
 }
 
+type UserDetailResponse = {
+  user_id: number
+  email: string
+  created_at: string
+  folder_count: number
+  bookmark_count: number
+}
+
 const API_BASE_URL = 'http://127.0.0.1:8000'
 
 function extractToken(data: AuthResponse): string | null {
@@ -32,6 +40,7 @@ function App() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)
   const [authMessage, setAuthMessage] = useState<string | null>(null)
+  const [currentUser, setCurrentUser] = useState<UserDetailResponse | null>(null)
 
   const isAuthenticated = Boolean(token)
 
@@ -51,7 +60,33 @@ function App() {
       localStorage.setItem('auth_token', token)
     } else {
       localStorage.removeItem('auth_token')
+      setCurrentUser(null)
     }
+  }, [token])
+
+  useEffect(() => {
+    if (!token) {
+      return
+    }
+
+    const loadCurrentUser = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/users/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        if (!response.ok) {
+          return
+        }
+        const data = (await response.json()) as UserDetailResponse
+        setCurrentUser(data)
+      } catch {
+        // Ignore non-critical profile fetch errors.
+      }
+    }
+
+    loadCurrentUser()
   }, [token])
 
   const navigate = (path: string) => {
@@ -184,6 +219,8 @@ function App() {
 
   const authMode: AuthMode = pathname === '/login' ? 'login' : 'register'
   const folderId = getFolderIdFromPath(pathname)
+  const displayName =
+    currentUser?.email?.split('@')[0]?.trim() || currentUser?.email || 'User'
 
   let authenticatedPage = <LandingPage token={token} />
   if (folderId !== null) {
@@ -212,40 +249,45 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      <header className="border-b border-slate-200 bg-white">
+    <div className="min-h-screen">
+      <header className="sticky top-0 z-40 border-b border-white/60 bg-white/80 backdrop-blur-xl">
         <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => navigate('/')}
-              className="text-sm font-semibold text-slate-900 hover:text-amber-700"
+              className="rounded-full px-3 py-1.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
             >
               Home
             </button>
             <button
               type="button"
               onClick={() => navigate('/search')}
-              className="text-sm font-semibold text-slate-900 hover:text-amber-700"
+              className="rounded-full px-3 py-1.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
             >
               Search
             </button>
             <button
               type="button"
               onClick={() => navigate('/folders')}
-              className="text-sm font-semibold text-slate-900 hover:text-amber-700"
+              className="rounded-full px-3 py-1.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
             >
               Folder
             </button>
           </div>
-          <button
-            type="button"
-            onClick={handleLogout}
-            disabled={isSubmitting}
-            className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            Logout
-          </button>
+          <div className="flex items-center gap-3">
+            <span className="hidden rounded-full bg-slate-100 px-3 py-1.5 text-sm font-medium text-slate-700 sm:inline-flex">
+              {displayName}
+            </span>
+            <button
+              type="button"
+              onClick={handleLogout}
+              disabled={isSubmitting}
+              className="rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              Logout
+            </button>
+          </div>
         </nav>
       </header>
 

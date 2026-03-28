@@ -26,11 +26,11 @@ function AuthPage({ mode, isSubmitting, error, message, onSubmit, onSwitchMode }
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gradient-to-b from-orange-50 via-amber-50 to-slate-100 px-4 py-10">
-      <section className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <p className="text-sm font-semibold uppercase tracking-wide text-amber-700">Food Bookmark App</p>
-        <h1 className="mt-2 text-3xl font-bold text-slate-900">{title}</h1>
-        <p className="mt-2 text-slate-600">{subtitle}</p>
+    <main className="relative flex min-h-screen items-center justify-center px-4 py-10">
+      <section className="w-full max-w-md rounded-3xl border border-white/70 bg-white/85 p-7 shadow-xl shadow-slate-900/5 backdrop-blur-xl">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-600">Food Bookmark App</p>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">{title}</h1>
+        <p className="mt-2 text-sm text-slate-600">{subtitle}</p>
 
         <div className="mt-6 space-y-3">
           <input
@@ -38,20 +38,20 @@ function AuthPage({ mode, isSubmitting, error, message, onSubmit, onSwitchMode }
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             placeholder="Email"
-            className="h-11 w-full rounded-xl border border-slate-300 px-3 text-slate-800"
+            className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-slate-800 outline-none ring-emerald-200 transition focus:ring-4"
           />
           <input
             type="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             placeholder="Password"
-            className="h-11 w-full rounded-xl border border-slate-300 px-3 text-slate-800"
+            className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-slate-800 outline-none ring-emerald-200 transition focus:ring-4"
           />
           <button
             type="button"
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="h-11 w-full rounded-xl bg-slate-900 font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-70"
+            className="h-11 w-full rounded-xl bg-slate-900 font-semibold text-white transition hover:-translate-y-0.5 hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-70"
           >
             {mode === 'register' ? 'Register' : 'Login'}
           </button>

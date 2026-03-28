@@ -15,7 +15,7 @@ function RecipeResults({
 }: RecipeResultsProps) {
   if (isLoading) {
     return (
-      <p className="rounded-2xl border border-dashed border-slate-300 bg-white/60 p-8 text-center text-slate-500">
+      <p className="rounded-3xl border border-slate-200 bg-white/80 p-8 text-center text-slate-500 shadow-sm">
         Searching recipes...
       </p>
     )
@@ -23,7 +23,7 @@ function RecipeResults({
 
   if (!hasSearched) {
     return (
-      <p className="rounded-2xl border border-dashed border-slate-300 bg-white/60 p-8 text-center text-slate-500">
+      <p className="rounded-3xl border border-slate-200 bg-white/80 p-8 text-center text-slate-500 shadow-sm">
         Start by typing a query and pressing search.
       </p>
     )
@@ -31,7 +31,7 @@ function RecipeResults({
 
   if (recipes.length === 0) {
     return (
-      <p className="rounded-2xl border border-dashed border-slate-300 bg-white/60 p-8 text-center text-slate-500">
+      <p className="rounded-3xl border border-slate-200 bg-white/80 p-8 text-center text-slate-500 shadow-sm">
         No recipes found. Try different keywords.
       </p>
     )

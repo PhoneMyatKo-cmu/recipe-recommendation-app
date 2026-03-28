@@ -25,12 +25,12 @@ function SearchBar({ value, onChange, onSubmit, isLoading = false }: SearchBarPr
           onChange={(event) => onChange(event.target.value)}
           placeholder="Search recipes, ingredients, or dishes"
           disabled={isLoading}
-          className="h-12 flex-1 rounded-2xl border border-slate-300 bg-white px-4 text-slate-800 placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+          className="h-12 flex-1 rounded-2xl border border-slate-200 bg-white/90 px-4 text-slate-800 placeholder:text-slate-400 outline-none ring-emerald-200 transition focus:ring-4"
         />
         <button
           type="submit"
           disabled={isLoading}
-          className="h-12 rounded-2xl bg-amber-500 px-6 font-medium text-slate-900 transition hover:bg-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-300"
+          className="h-12 rounded-2xl bg-slate-900 px-6 font-medium text-white transition hover:-translate-y-0.5 hover:bg-slate-700"
         >
           {isLoading ? 'Searching...' : 'Search'}
         </button>

@@ -4,7 +4,14 @@ import { normalizeImageUrl } from '../../utils/imageUrl'
 type RecipeDetailResponse = {
   recipe_id: number
   name: string
+  description: string | null
   image_url: string | null
+  aggregated_rating: number | null
+  rating_count: number | null
+  cook_time: number | null
+  prep_time: number | null
+  servings: number | null
+  calories: number | null
   ingredients_text: string
   steps_text: string
   ingredients: string[]
@@ -24,6 +31,14 @@ type RecipeDetailModalProps = {
 }
 
 const API_BASE_URL = 'http://127.0.0.1:8000'
+
+function stripWrappingQuotes(value: string): string {
+  const trimmed = value.trim()
+  if (trimmed.length >= 2 && trimmed.startsWith('"') && trimmed.endsWith('"')) {
+    return trimmed.slice(1, -1).trim()
+  }
+  return trimmed
+}
 
 function RecipeDetailModal({ recipeId, token, allowBookmark = true, onClose }: RecipeDetailModalProps) {
   const [recipe, setRecipe] = useState<RecipeDetailResponse | null>(null)
@@ -214,14 +229,14 @@ function RecipeDetailModal({ recipeId, token, allowBookmark = true, onClose }: R
     : null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4" role="dialog" aria-modal="true">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/55 p-4 backdrop-blur-sm" role="dialog" aria-modal="true">
       <button
         type="button"
         aria-label="Close recipe detail"
         className="absolute inset-0 cursor-default"
         onClick={onClose}
       />
-      <section className="relative z-10 max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-3xl border border-slate-200 bg-white shadow-xl">
+      <section className="relative z-10 max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-3xl border border-white/70 bg-white/95 shadow-2xl shadow-slate-900/20">
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3">
           <p className="text-sm font-semibold text-slate-700">Recipe Detail</p>
           <button
@@ -246,6 +261,7 @@ function RecipeDetailModal({ recipeId, token, allowBookmark = true, onClose }: R
                   Recipe #{recipe.recipe_id}
                 </p>
                 <h2 className="text-3xl font-bold text-slate-900">{recipe.name}</h2>
+                {recipe.description && <p className="text-slate-600">{recipe.description}</p>}
                 {allowBookmark && (
                   <button
                     type="button"
@@ -325,16 +341,59 @@ function RecipeDetailModal({ recipeId, token, allowBookmark = true, onClose }: R
                 </section>
               )}
 
+              <section className="grid grid-cols-1 gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Community Rating</p>
+                  <p className="text-sm font-semibold text-slate-900">
+                    {recipe.aggregated_rating !== null
+                      ? `${recipe.aggregated_rating.toFixed(2)} / 5`
+                      : 'N/A'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Rating Count</p>
+                  <p className="text-sm font-semibold text-slate-900">
+                    {recipe.rating_count !== null ? recipe.rating_count : 'N/A'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Prep Time</p>
+                  <p className="text-sm font-semibold text-slate-900">
+                    {recipe.prep_time !== null ? `${recipe.prep_time} min` : 'N/A'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Cook Time</p>
+                  <p className="text-sm font-semibold text-slate-900">
+                    {recipe.cook_time !== null ? `${recipe.cook_time} min` : 'N/A'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Servings</p>
+                  <p className="text-sm font-semibold text-slate-900">
+                    {recipe.servings !== null ? recipe.servings : 'N/A'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Calories</p>
+                  <p className="text-sm font-semibold text-slate-900">
+                    {recipe.calories !== null ? `${recipe.calories.toFixed(0)} kcal` : 'N/A'}
+                  </p>
+                </div>
+              </section>
+
               <section className="space-y-3">
                 <h3 className="text-xl font-semibold text-slate-900">Ingredients</h3>
                 {recipe.ingredients.length > 0 ? (
                   <ul className="list-disc space-y-1 pl-6 text-slate-700">
                     {recipe.ingredients.map((ingredient, index) => (
-                      <li key={`${ingredient}-${index}`}>{ingredient}</li>
+                      <li key={`${ingredient}-${index}`}>{stripWrappingQuotes(ingredient)}</li>
                     ))}
                   </ul>
                 ) : (
-                  <p className="whitespace-pre-wrap text-slate-600">{recipe.ingredients_text}</p>
+                  <p className="whitespace-pre-wrap text-slate-600">
+                    {stripWrappingQuotes(recipe.ingredients_text)}
+                  </p>
                 )}
               </section>
 
@@ -343,11 +402,13 @@ function RecipeDetailModal({ recipeId, token, allowBookmark = true, onClose }: R
                 {recipe.steps.length > 0 ? (
                   <ol className="list-decimal space-y-2 pl-6 text-slate-700">
                     {recipe.steps.map((step, index) => (
-                      <li key={`${step}-${index}`}>{step}</li>
+                      <li key={`${step}-${index}`}>{stripWrappingQuotes(step)}</li>
                     ))}
                   </ol>
                 ) : (
-                  <p className="whitespace-pre-wrap text-slate-600">{recipe.steps_text}</p>
+                  <p className="whitespace-pre-wrap text-slate-600">
+                    {stripWrappingQuotes(recipe.steps_text)}
+                  </p>
                 )}
               </section>
             </div>

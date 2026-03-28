@@ -152,7 +152,7 @@ function FolderDetail({ token, folderId, onBack }: FolderDetailProps) {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-orange-50 via-amber-50 to-slate-100 px-4 py-10">
+    <main className="min-h-screen px-4 py-10">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
         <button
           type="button"
@@ -170,14 +170,14 @@ function FolderDetail({ token, folderId, onBack }: FolderDetailProps) {
           </p>
         ) : (
           <>
-            <header className="space-y-2">
-              <p className="text-sm font-semibold uppercase tracking-wide text-amber-700">Folder Detail</p>
+            <header className="space-y-2 rounded-3xl border border-white/70 bg-white/85 p-6 shadow-lg shadow-slate-900/5 backdrop-blur-xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-600">Folder Detail</p>
               <h1 className="text-4xl font-bold tracking-tight text-slate-900">
                 {folder?.name ?? `Folder #${folderId}`}
               </h1>
             </header>
 
-            <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5">
               <h2 className="mb-4 text-xl font-semibold text-slate-900">Bookmarks</h2>
               {bookmarks.length === 0 ? (
                 <p className="text-slate-600">This folder is empty.</p>
@@ -242,7 +242,7 @@ function FolderDetail({ token, folderId, onBack }: FolderDetailProps) {
               )}
             </section>
 
-            <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-xl font-semibold text-slate-900">Generated Suggestions (LSA)</h2>
                 <button
