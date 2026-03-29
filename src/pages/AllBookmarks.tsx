@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import RecipeDetailModal from '../components/search/RecipeDetailModal'
 import { toProxyImageUrl } from '../utils/imageUrl'
 
@@ -90,9 +90,60 @@ function AllBookmarks({ token, userId }: AllBookmarksProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [selectedRecipeId, setSelectedRecipeId] = useState<number | null>(null)
+  const [groupByFolder, setGroupByFolder] = useState(false)
 
   // Scroll reveal animation
   const { revealedIndexes, setElementRef } = useScrollReveal(items.length)
+
+  const groupedFolders = useMemo(() => {
+    const grouped = new Map<
+      number,
+      {
+        folder_id: number
+        folder_name: string
+        average_user_rating: number
+        bookmarks: BookmarkCommunityRankResponse[]
+      }
+    >()
+
+    for (const bookmark of items) {
+      const existing = grouped.get(bookmark.folder_id)
+      if (existing) {
+        existing.bookmarks.push(bookmark)
+      } else {
+        grouped.set(bookmark.folder_id, {
+          folder_id: bookmark.folder_id,
+          folder_name: bookmark.folder_name,
+          average_user_rating: 0,
+          bookmarks: [bookmark],
+        })
+      }
+    }
+
+    const groups = Array.from(grouped.values()).map((group) => {
+      const sumRatings = group.bookmarks.reduce((sum, bookmark) => sum + bookmark.rating, 0)
+      const average = group.bookmarks.length > 0 ? sumRatings / group.bookmarks.length : 0
+      const sortedBookmarks = [...group.bookmarks].sort((a, b) => {
+        if (b.rating !== a.rating) {
+          return b.rating - a.rating
+        }
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      })
+
+      return {
+        ...group,
+        average_user_rating: average,
+        bookmarks: sortedBookmarks,
+      }
+    })
+
+    return groups.sort((a, b) => {
+      if (b.average_user_rating !== a.average_user_rating) {
+        return b.average_user_rating - a.average_user_rating
+      }
+      return b.bookmarks.length - a.bookmarks.length
+    })
+  }, [items])
 
   const getErrorMessage = async (response: Response, fallback: string) => {
     try {
@@ -163,15 +214,24 @@ function AllBookmarks({ token, userId }: AllBookmarksProps) {
         <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5">
           <div className="mb-5 flex items-center justify-between">
             <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
-              <span>⭐</span> Community Ranked
+              <span>⭐</span> {groupByFolder ? 'Group By Folder' : 'Community Ranked'}
             </h2>
-            <button
-              type="button"
-              onClick={loadBookmarks}
-              className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:border-slate-400 hover:bg-slate-50 active:scale-95"
-            >
-              Refresh
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setGroupByFolder((prev) => !prev)}
+                className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:border-slate-400 hover:bg-slate-50 active:scale-95"
+              >
+                {groupByFolder ? 'Ungroup' : 'Group by Folder'}
+              </button>
+              <button
+                type="button"
+                onClick={loadBookmarks}
+                className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:border-slate-400 hover:bg-slate-50 active:scale-95"
+              >
+                Refresh
+              </button>
+            </div>
           </div>
 
           {!userId ? (
@@ -191,6 +251,60 @@ function AllBookmarks({ token, userId }: AllBookmarksProps) {
               </div> */}
               <p className="mt-4 text-slate-600">No bookmarks found yet.</p>
               <p className="mt-2 text-sm text-slate-500">Start exploring recipes and bookmark your favorites!</p>
+            </div>
+          ) : groupByFolder ? (
+            <div className="space-y-4">
+              {groupedFolders.map((folderGroup) => (
+                <section
+                  key={folderGroup.folder_id}
+                  className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+                >
+                  <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-900">{folderGroup.folder_name}</h3>
+                      <p className="text-sm text-slate-600">
+                        Average user rating: ⭐ {folderGroup.average_user_rating.toFixed(2)} / 5
+                      </p>
+                    </div>
+                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                      {folderGroup.bookmarks.length} bookmark{folderGroup.bookmarks.length > 1 ? 's' : ''}
+                    </span>
+                  </div>
+
+                  <ul className="space-y-3">
+                    {folderGroup.bookmarks.map((item) => (
+                      <li key={item.bookmark_id} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                        <div className="flex gap-3">
+                          <img
+                            src={
+                              toProxyImageUrl(
+                                item.image_url,
+                                'https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=500&q=80',
+                              ) ?? undefined
+                            }
+                            alt={item.recipe_name}
+                            className="h-20 w-20 rounded-lg object-cover"
+                          />
+                          <div className="min-w-0 flex-1">
+                            <p className="line-clamp-1 font-semibold text-slate-900">{item.recipe_name}</p>
+                            <p className="text-xs text-slate-500 mt-1">Your rating: ⭐ {item.rating}/5</p>
+                            <div className="mt-1">
+                              <StarRating rating={item.aggregated_rating} />
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setSelectedRecipeId(item.recipe_id)}
+                            className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 transition-all duration-200 hover:border-amber-500 hover:bg-amber-50 hover:text-amber-700 active:scale-95"
+                          >
+                            View
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ))}
             </div>
           ) : (
             <ul className="grid grid-cols-1 gap-4">

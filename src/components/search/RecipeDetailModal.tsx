@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { toProxyImageUrl } from '../../utils/imageUrl'
+import { stripWrappingQuotes } from '../../utils/textSanitizer'
 
 type RecipeDetailResponse = {
   recipe_id: number
@@ -32,15 +33,7 @@ type RecipeDetailModalProps = {
 
 const API_BASE_URL = 'http://127.0.0.1:8000'
 
-function stripWrappingQuotes(value: string): string {
-  const trimmed = value.trim()
-  if (trimmed.length >= 2 && trimmed.startsWith('"') && trimmed.endsWith('"')) {
-    return trimmed.slice(1, -1).trim()
-  }
-  return trimmed
-}
-
-function RecipeDetailModal(this: any, { recipeId, token, allowBookmark = true, onClose }: RecipeDetailModalProps) {
+function RecipeDetailModal({ recipeId, token, allowBookmark = true, onClose }: RecipeDetailModalProps) {
   const [recipe, setRecipe] = useState<RecipeDetailResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
