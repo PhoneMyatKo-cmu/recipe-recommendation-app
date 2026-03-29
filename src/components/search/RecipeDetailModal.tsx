@@ -28,12 +28,19 @@ type RecipeDetailModalProps = {
   recipeId: number
   token?: string | null
   allowBookmark?: boolean
+  onBookmarkSaved?: () => void
   onClose: () => void
 }
 
 const API_BASE_URL = 'http://127.0.0.1:8000'
 
-function RecipeDetailModal({ recipeId, token, allowBookmark = true, onClose }: RecipeDetailModalProps) {
+function RecipeDetailModal({
+  recipeId,
+  token,
+  allowBookmark = true,
+  onBookmarkSaved,
+  onClose,
+}: RecipeDetailModalProps) {
   const [recipe, setRecipe] = useState<RecipeDetailResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -138,6 +145,7 @@ function RecipeDetailModal({ recipeId, token, allowBookmark = true, onClose }: R
 
       setShowBookmarkPanel(false)
       setBookmarkMessage('Bookmark added successfully.')
+      onBookmarkSaved?.()
     } catch (requestError) {
       setBookmarkError(
         requestError instanceof Error ? requestError.message : 'Failed to create bookmark.',

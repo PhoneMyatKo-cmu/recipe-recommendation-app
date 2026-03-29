@@ -21,27 +21,32 @@ type FolderItem = {
 
 type LandingPageProps = {
   token: string | null
+  bookmarkCount?: number | null
 }
 type RecommendationApproach = 'tfidf' | 'lsa' | 'mf'
 
 const API_BASE_URL = 'http://127.0.0.1:8000'
 const DEFAULT_TOP_K = 8
 
-function LandingPage({ token }: LandingPageProps) {
+function LandingPage({ token, bookmarkCount = null }: LandingPageProps) {
   const [approach, setApproach] = useState<RecommendationApproach>('tfidf')
   const [folders, setFolders] = useState<FolderItem[]>([])
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null)
+  const [hasBookmarkedThisSession, setHasBookmarkedThisSession] = useState(false)
 
+  const [popularRecs, setPopularRecs] = useState<RecommendationItem[]>([])
   const [allRecs, setAllRecs] = useState<RecommendationItem[]>([])
   const [folderRecs, setFolderRecs] = useState<RecommendationItem[]>([])
   const [randomRecs, setRandomRecs] = useState<RecommendationItem[]>([])
 
+  const [isLoadingPopular, setIsLoadingPopular] = useState(false)
   const [isLoadingAll, setIsLoadingAll] = useState(false)
   const [isLoadingFolder, setIsLoadingFolder] = useState(false)
   const [isLoadingRandom, setIsLoadingRandom] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const [selectedRecipeId, setSelectedRecipeId] = useState<number | null>(null)
+  const shouldShowPopular = bookmarkCount === 0 && !hasBookmarkedThisSession
 
   const getAuthHeaders = useCallback(
     (): HeadersInit => ({
@@ -104,6 +109,26 @@ function LandingPage({ token }: LandingPageProps) {
     }
   }, [getAuthHeaders, approach])
 
+  const loadPopularRecommendations = useCallback(async () => {
+    setIsLoadingPopular(true)
+    setError(null)
+    try {
+      const response = await fetch(`${API_BASE_URL}/recommendations/popular?top_k=${DEFAULT_TOP_K}`, {
+        headers: getAuthHeaders(),
+      })
+      if (!response.ok) {
+        throw new Error(await getErrorMessage(response, 'Failed to load popular recommendations.'))
+      }
+      const data = (await response.json()) as RecommendationResponse
+      setPopularRecs(data.results ?? [])
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : 'Failed to load popular recommendations.')
+      setPopularRecs([])
+    } finally {
+      setIsLoadingPopular(false)
+    }
+  }, [getAuthHeaders])
+
   const loadFolderRecommendations = useCallback(async (folderId: number) => {
     setIsLoadingFolder(true)
     setError(null)
@@ -160,6 +185,23 @@ function LandingPage({ token }: LandingPageProps) {
     }
     init()
   }, [token, loadAllRecommendations, loadFolders, loadRandomRecommendations])
+
+  useEffect(() => {
+    if (!token) {
+      return
+    }
+    if (!shouldShowPopular) {
+      setPopularRecs([])
+      return
+    }
+    loadPopularRecommendations()
+  }, [token, shouldShowPopular, loadPopularRecommendations])
+
+  useEffect(() => {
+    if (bookmarkCount !== 0) {
+      setHasBookmarkedThisSession(false)
+    }
+  }, [bookmarkCount])
 
   useEffect(() => {
     if (!token || selectedFolderId === null) {
@@ -221,11 +263,11 @@ function LandingPage({ token }: LandingPageProps) {
               <h3 className="line-clamp-2 text-sm font-semibold text-slate-900 group-hover:text-emerald-700 transition-colors">
                 {item.name}
               </h3>
-              <div className="flex items-center gap-2">
+              {/* <div className="flex items-center gap-2">
                 <span className="rounded-full bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-700">
                   ★ {item.score.toFixed(3)}
                 </span>
-              </div>
+              </div> */}
               <button
                 type="button"
                 onClick={() => setSelectedRecipeId(item.recipe_id)}
@@ -267,6 +309,22 @@ function LandingPage({ token }: LandingPageProps) {
           <p className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700">
             {error}
           </p>
+        )}
+
+        {shouldShowPopular && (
+          <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-slate-900">Popular Right Now</h2>
+              <button
+                type="button"
+                onClick={loadPopularRecommendations}
+                className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              >
+                Refresh
+              </button>
+            </div>
+            {renderCards(popularRecs, isLoadingPopular, 'No popular recommendations available.')}
+          </section>
         )}
 
         <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5">
@@ -335,7 +393,12 @@ function LandingPage({ token }: LandingPageProps) {
       </section>
 
       {selectedRecipeId !== null && (
-        <RecipeDetailModal recipeId={selectedRecipeId} token={token} onClose={() => setSelectedRecipeId(null)} />
+        <RecipeDetailModal
+          recipeId={selectedRecipeId}
+          token={token}
+          onBookmarkSaved={() => setHasBookmarkedThisSession(true)}
+          onClose={() => setSelectedRecipeId(null)}
+        />
       )}
     </main>
   )

@@ -65,7 +65,7 @@ function App() {
       localStorage.removeItem('auth_token')
       setCurrentUser(null)
     }
-  }, [token])
+  }, [token, pathname])
 
   useEffect(() => {
     const originalFetch = window.fetch
@@ -259,7 +259,7 @@ function App() {
   const displayName =
     currentUser?.email?.split('@')[0]?.trim() || currentUser?.email || 'User'
 
-  let authenticatedPage = <LandingPage token={token} />
+  let authenticatedPage = <LandingPage token={token} bookmarkCount={currentUser?.bookmark_count ?? null} />
   if (folderId !== null) {
     authenticatedPage = <FolderDetail token={token} folderId={folderId} onBack={() => navigate('/folders')} />
   } else if (pathname === '/search') {
