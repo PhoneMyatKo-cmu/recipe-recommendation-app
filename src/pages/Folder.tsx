@@ -157,10 +157,15 @@ function Folder({ token, onOpenFolder }: FolderPageProps) {
   return (
     <main className="min-h-screen px-4 py-10">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
-        <header className="space-y-2 rounded-3xl border border-white/70 bg-white/85 p-6 shadow-lg shadow-slate-900/5 backdrop-blur-xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-600">Folders</p>
+        <header className="space-y-3 rounded-3xl border border-white/70 bg-gradient-to-br from-white/90 to-blue-50/30 p-6 shadow-lg shadow-slate-900/5 backdrop-blur-xl animate-fade-in">
+          <div className="flex items-center gap-3">
+            <div className="rounded-full bg-blue-100 p-2">
+              <span className="text-2xl">📁</span>
+            </div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-600">Folders</p>
+          </div>
           <h1 className="text-4xl font-bold tracking-tight text-slate-900">Manage your folders</h1>
-          <p className="text-slate-600">Create, rename, delete folders and open a folder detail page.</p>
+          <p className="text-slate-600">Create folders and organize your recipe bookmarks.</p>
         </header>
 
         <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5">
@@ -169,65 +174,104 @@ function Folder({ token, onOpenFolder }: FolderPageProps) {
               type="text"
               value={newFolderName}
               onChange={(event) => setNewFolderName(event.target.value)}
-              placeholder="New folder name"
-              className="h-11 flex-1 rounded-xl border border-slate-300 px-3 text-slate-800"
+              placeholder="Enter folder name..."
+              className="h-11 flex-1 rounded-xl border border-slate-300 bg-white px-4 text-slate-800 shadow-sm transition-all duration-200 hover:border-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20"
             />
             <button
               type="button"
               onClick={handleCreateFolder}
               disabled={isCreating}
-              className="h-11 rounded-xl bg-slate-900 px-5 text-sm font-semibold text-white hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-70"
+              className="h-11 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 px-5 text-sm font-semibold text-white shadow-lg shadow-blue-900/20 transition-all duration-200 hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl hover:shadow-blue-900/30 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              Create Folder
+              {isCreating ? (
+                <span className="flex items-center gap-2">
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                  Creating...
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <span>+</span> Create Folder
+                </span>
+              )}
             </button>
           </div>
         </section>
 
         {folderError && (
-          <p className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700">
-            {folderError}
-          </p>
+          <div className="rounded-3xl border border-red-200 bg-red-50 p-5 shadow-md animate-fade-in">
+            <div className="flex items-start gap-3">
+              <span className="text-xl">⚠️</span>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-red-700">Error</p>
+                <p className="text-sm text-red-600 mt-1">{folderError}</p>
+              </div>
+            </div>
+          </div>
         )}
 
         <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5">
-          <h2 className="mb-4 text-xl font-semibold text-slate-900">Your folders</h2>
+          <h2 className="mb-5 text-xl font-semibold text-slate-900 flex items-center gap-2">
+            Your folders
+          </h2>
 
           {isLoadingFolders ? (
-            <p className="text-slate-600">Loading folders...</p>
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
+              <p className="mt-4 text-slate-600">Loading folders...</p>
+            </div>
           ) : folders.length === 0 ? (
-            <p className="text-slate-600">No folders yet. Create your first folder.</p>
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="rounded-full bg-slate-100 p-4">
+                <span className="text-4xl">📁</span>
+              </div>
+              <p className="mt-4 text-slate-600">No folders yet.</p>
+              <p className="mt-2 text-sm text-slate-500">Create your first folder to start organizing recipes!</p>
+            </div>
           ) : (
-            <div className="space-y-3">
-              {folders.map((folder) => {
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {folders.map((folder, index) => {
                 const isEditing = editingFolderId === folder.folder_id
                 const isDeleting = deletingFolderId === folder.folder_id
 
                 return (
-                  <article key={folder.folder_id} className="rounded-2xl border border-slate-200/70 bg-white p-4">
-                    <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                      <div className="space-y-1">
-                        {isEditing ? (
-                          <input
-                            type="text"
-                            value={editingName}
-                            onChange={(event) => setEditingName(event.target.value)}
-                            className="h-10 w-full rounded-lg border border-slate-300 px-3 text-slate-800 lg:w-80"
-                          />
-                        ) : (
-                          <h3 className="text-lg font-semibold text-slate-900">{folder.name}</h3>
-                        )}
-                        <p className="text-xs text-slate-500">
-                          Created: {new Date(folder.created_at).toLocaleString()}
-                        </p>
+                  <article
+                    key={folder.folder_id}
+                    className="group overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-900/10 animate-fade-in"
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
+                    <div className="flex flex-col gap-4">
+                      <div className="flex items-start gap-3">
+                        <div className="rounded-xl bg-gradient-to-br from-blue-100 to-indigo-100 p-3">
+                          <span className="text-2xl">📁</span>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          {isEditing ? (
+                            <input
+                              type="text"
+                              value={editingName}
+                              onChange={(event) => setEditingName(event.target.value)}
+                              className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-slate-800 shadow-sm transition-all duration-200 hover:border-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20"
+                              autoFocus
+                            />
+                          ) : (
+                            <h3 className="text-lg font-semibold text-slate-900 truncate group-hover:text-blue-700 transition-colors">
+                              {folder.name}
+                            </h3>
+                          )}
+                          <p className="mt-1 flex items-center gap-1 text-xs text-slate-500">
+                            {/* <span>📅</span> */}
+                            {new Date(folder.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
                       </div>
 
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-100">
                         <button
                           type="button"
                           onClick={() => onOpenFolder(folder.folder_id)}
-                          className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                          className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:border-blue-500 hover:bg-blue-50 hover:text-blue-700 active:scale-95"
                         >
-                          View Folder Detail
+                          Open
                         </button>
 
                         {isEditing ? (
@@ -236,9 +280,9 @@ function Folder({ token, onOpenFolder }: FolderPageProps) {
                               type="button"
                               onClick={() => handleRenameFolder(folder.folder_id)}
                               disabled={isUpdating}
-                              className="rounded-lg bg-amber-500 px-3 py-1.5 text-sm font-semibold text-slate-900 hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-70"
+                              className="rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 px-3 py-2 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:from-amber-600 hover:to-orange-600 hover:shadow-lg active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
                             >
-                              Save Name
+                              {isUpdating ? 'Saving...' : 'Save'}
                             </button>
                             <button
                               type="button"
@@ -246,7 +290,7 @@ function Folder({ token, onOpenFolder }: FolderPageProps) {
                                 setEditingFolderId(null)
                                 setEditingName('')
                               }}
-                              className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                              className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-slate-50 active:scale-95"
                             >
                               Cancel
                             </button>
@@ -255,7 +299,7 @@ function Folder({ token, onOpenFolder }: FolderPageProps) {
                           <button
                             type="button"
                             onClick={() => startRename(folder)}
-                            className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                            className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-slate-50 active:scale-95"
                           >
                             Rename
                           </button>
@@ -265,9 +309,9 @@ function Folder({ token, onOpenFolder }: FolderPageProps) {
                           type="button"
                           onClick={() => handleDeleteFolder(folder.folder_id)}
                           disabled={isDeleting}
-                          className="rounded-lg border border-red-300 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-70"
+                          className="rounded-lg border border-red-300 px-3 py-2 text-sm font-medium text-red-700 transition-all duration-200 hover:bg-red-50 hover:border-red-400 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
                         >
-                          Delete
+                          {isDeleting ? 'Deleting...' : ' Delete'}
                         </button>
                       </div>
                     </div>

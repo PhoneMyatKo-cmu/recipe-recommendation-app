@@ -1,6 +1,53 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useRef } from 'react'
 import RecipeDetailModal from '../components/search/RecipeDetailModal'
 import { toProxyImageUrl } from '../utils/imageUrl'
+
+// Custom hook for scroll reveal animation
+function useScrollReveal(itemCount: number) {
+  const [revealedIndexes, setRevealedIndexes] = useState<Set<number>>(new Set())
+  const observerRef = useRef<IntersectionObserver | null>(null)
+  const elementRefs = useRef<(HTMLElement | null)[]>([])
+
+  useEffect(() => {
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const target = entry.target as HTMLElement
+            const dataIndex = Number(target.dataset.index)
+            setRevealedIndexes((prev) => new Set([...prev, dataIndex]))
+            observerRef.current?.unobserve(target)
+          }
+        })
+      },
+      {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.1,
+      }
+    )
+
+    // Observe all current elements
+    elementRefs.current.forEach((element) => {
+      if (element) {
+        observerRef.current?.observe(element)
+      }
+    })
+
+    return () => {
+      observerRef.current?.disconnect()
+    }
+  }, [itemCount])
+
+  const setElementRef = useCallback((index: number) => (element: HTMLElement | null) => {
+    elementRefs.current[index] = element
+    if (element && observerRef.current) {
+      observerRef.current.observe(element)
+    }
+  }, [])
+
+  return { revealedIndexes, setElementRef }
+}
 
 type BookmarkCommunityRankResponse = {
   bookmark_id: number
@@ -43,6 +90,9 @@ function AllBookmarks({ token, userId }: AllBookmarksProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [selectedRecipeId, setSelectedRecipeId] = useState<number | null>(null)
+
+  // Scroll reveal animation
+  const { revealedIndexes, setElementRef } = useScrollReveal(items.length)
 
   const getErrorMessage = async (response: Response, fallback: string) => {
     try {
@@ -87,41 +137,76 @@ function AllBookmarks({ token, userId }: AllBookmarksProps) {
   return (
     <main className="min-h-screen px-4 py-10">
       <section className="mx-auto flex max-w-6xl flex-col gap-6">
-        <header className="space-y-2 rounded-3xl border border-white/70 bg-white/85 p-6 shadow-lg shadow-slate-900/5 backdrop-blur-xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-600">Bookmarks</p>
+        <header className="space-y-3 rounded-3xl border border-white/70 bg-gradient-to-br from-white/90 to-amber-50/30 p-6 shadow-lg shadow-slate-900/5 backdrop-blur-xl animate-fade-in">
+          <div className="flex items-center gap-3">
+            {/* <div className="rounded-full bg-amber-100 p-2">
+              <span className="text-2xl">🔖</span>
+            </div> */}
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-600">Bookmarks</p>
+          </div>
           <h1 className="text-4xl font-bold tracking-tight text-slate-900">All Bookmarks</h1>
-          <p className="text-slate-600">Sorted by community rating and recipe popularity.</p>
+          <p className="text-slate-600">Your saved recipes, ranked by community rating and popularity.</p>
         </header>
 
         {error && (
-          <p className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700">
-            {error}
-          </p>
+          <div className="rounded-3xl border border-red-200 bg-red-50 p-5 shadow-md animate-fade-in">
+            <div className="flex items-start gap-3">
+              <span className="text-xl">⚠️</span>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-red-700">Error</p>
+                <p className="text-sm text-red-600 mt-1">{error}</p>
+              </div>
+            </div>
+          </div>
         )}
 
         <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-slate-900">Community Ranked</h2>
+          <div className="mb-5 flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
+              <span>⭐</span> Community Ranked
+            </h2>
             <button
               type="button"
               onClick={loadBookmarks}
-              className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:border-slate-400 hover:bg-slate-50 active:scale-95"
             >
               Refresh
             </button>
           </div>
 
           {!userId ? (
-            <p className="text-slate-600">Loading user profile...</p>
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-amber-600" />
+              <p className="mt-4 text-slate-600">Loading user profile...</p>
+            </div>
           ) : isLoading ? (
-            <p className="text-slate-600">Loading bookmarks...</p>
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-amber-600" />
+              <p className="mt-4 text-slate-600">Loading bookmarks...</p>
+            </div>
           ) : items.length === 0 ? (
-            <p className="text-slate-600">No bookmarks found.</p>
+            <div className="flex flex-col items-center justify-center py-12">
+              {/* <div className="rounded-full bg-slate-100 p-4">
+                <span className="text-4xl">🔖</span>
+              </div> */}
+              <p className="mt-4 text-slate-600">No bookmarks found yet.</p>
+              <p className="mt-2 text-sm text-slate-500">Start exploring recipes and bookmark your favorites!</p>
+            </div>
           ) : (
-            <ul className="space-y-3">
-              {items.map((item) => (
-                <li key={item.bookmark_id} className="rounded-2xl border border-slate-200 bg-white p-4">
-                  <div className="flex flex-col gap-3 sm:flex-row">
+            <ul className="grid grid-cols-1 gap-4">
+              {items.map((item, index) => {
+                const isRevealed = revealedIndexes.has(index)
+                return (
+                <li
+                  key={item.bookmark_id}
+                  ref={setElementRef(index)}
+                  data-index={index}
+                  className={`group overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-900/10 ${
+                    isRevealed ? 'animate-fade-in' : 'scroll-reveal'
+                  }`}
+                  style={{ animationDelay: isRevealed ? `${index * 50}ms` : undefined }}
+                >
+                  <div className="flex gap-4">
                     <img
                       src={
                         toProxyImageUrl(
@@ -130,32 +215,39 @@ function AllBookmarks({ token, userId }: AllBookmarksProps) {
                         ) ?? undefined
                       }
                       alt={item.recipe_name}
-                      className="h-24 w-full rounded-xl object-cover sm:w-40"
+                      className="h-28 w-28 rounded-xl object-cover transition-transform duration-300 group-hover:scale-105"
                     />
-                    <div className="flex-1 space-y-2">
-                      <h3 className="text-lg font-semibold text-slate-900">{item.recipe_name}</h3>
-                      <p className="text-sm text-slate-600">Folder: {item.folder_name}</p>
-                      <p className="text-sm text-slate-600">Your rating: {item.rating}/5</p>
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                          Community Rating
-                        </p>
-                        <StarRating rating={item.aggregated_rating} />
-                        <p className="text-xs text-slate-500">Votes: {item.rating_count ?? 0}</p>
+                    <div className="flex min-w-0 flex-1 flex-col gap-2">
+                      <h3 className="line-clamp-2 text-base font-semibold text-slate-900 group-hover:text-amber-700 transition-colors">
+                        {item.recipe_name}
+                      </h3>
+                      <div className="flex items-center gap-2">
+                        <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
+                          📁 {item.folder_name}
+                        </span>
+                      </div>
+                      <div className="mt-auto">
+                        <p className="text-xs text-slate-500">Your rating: ⭐ {item.rating}/5</p>
                       </div>
                     </div>
-                    <div className="sm:self-end">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedRecipeId(item.recipe_id)}
-                        className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-                      >
-                        View Detail
-                      </button>
+                  </div>
+                  <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">Community Rating</p>
+                      <StarRating rating={item.aggregated_rating} />
+                      <p className="text-xs text-slate-500 mt-1">{item.rating_count ?? 0} votes</p>
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedRecipeId(item.recipe_id)}
+                      className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:border-amber-500 hover:bg-amber-50 hover:text-amber-700 active:scale-95"
+                    >
+                      View Recipe
+                    </button>
                   </div>
                 </li>
-              ))}
+                )
+              })}
             </ul>
           )}
         </section>

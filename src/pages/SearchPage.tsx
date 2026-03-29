@@ -1,8 +1,8 @@
 import { useState } from 'react'
+import type { RecipeResult } from '../components/search/RecipeCard'
 import RecipeDetailModal from '../components/search/RecipeDetailModal'
 import RecipeResults from '../components/search/RecipeResults'
 import SearchBar from '../components/search/SearchBar'
-import type { RecipeResult } from '../components/search/RecipeCard'
 
 type SearchApiResponse = {
   query: string
@@ -90,17 +90,22 @@ function SearchPage({ token }: SearchPageProps) {
   return (
     <main className="min-h-screen px-4 py-10 text-left">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
-        <header className="space-y-3 rounded-3xl border border-white/70 bg-white/85 p-6 shadow-lg shadow-slate-900/5 backdrop-blur-xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-600">Recipe Search</p>
+        <header className="space-y-3 rounded-3xl border border-white/70 bg-gradient-to-br from-white/90 to-white/80 p-8 shadow-lg shadow-slate-900/5 backdrop-blur-xl animate-fade-in">
+          <div className="flex items-center gap-3">
+            {/* <div className="rounded-full bg-emerald-100 p-2">
+              <span className="text-2xl">🔍</span>
+            </div> */}
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-600">Recipe Search</p>
+          </div>
           <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
             Find your next meal idea
           </h1>
           <p className="max-w-2xl text-sm text-slate-600">
-            Connected to backend endpoint <code>http://127.0.0.1:8000/search</code>
+            Search through thousands of recipes with smart filtering and ranking
           </p>
         </header>
 
-        <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5 backdrop-blur-xl">
+        <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-lg shadow-slate-900/5 backdrop-blur-xl">
           <SearchBar
             value={queryInput}
             onChange={setQueryInput}
@@ -110,36 +115,53 @@ function SearchPage({ token }: SearchPageProps) {
         </section>
 
         {submittedQuery && (
-          <section className="rounded-3xl border border-white/70 bg-white/85 p-4 text-sm text-slate-700 shadow-sm">
-            <p>
-              Showing results for:{' '}
-              <span className="font-semibold text-slate-900">"{submittedQuery}"</span>
-            </p>
+          <section className="rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50 p-5 text-sm text-slate-700 shadow-md animate-slide-in">
+            <div className="flex items-center gap-2">
+              {/* <span className="text-lg">🎯</span> */}
+              <p>
+                Showing results for:{' '}
+                <span className="font-bold text-slate-900">"{submittedQuery}"</span>
+              </p>
+            </div>
             {spellCorrected && correctedQuery && (
-              <div className="mt-2 border-t border-slate-200 pt-2">
-                <p>
-                  Did you mean:{' '}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setQueryInput(correctedQuery)
-                      handleSubmit(correctedQuery)
-                    }}
-                    className="font-semibold text-amber-700 underline hover:text-amber-800"
-                  >
-                    "{correctedQuery}"
-                  </button>
-                </p>
+              <div className="mt-3 border-t border-emerald-200/50 pt-3">
+                <div className="flex items-center gap-2">
+                  <span>💡</span>
+                  <p>
+                    Did you mean:{' '}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setQueryInput(correctedQuery)
+                        handleSubmit(correctedQuery)
+                      }}
+                      className="font-semibold text-amber-700 underline decoration-amber-700/30 underline-offset-4 hover:text-amber-800 hover:decoration-amber-800/50 transition-all"
+                    >
+                      "{correctedQuery}"
+                    </button>
+                  </p>
+                </div>
               </div>
             )}
-            {normalizedQuery && <p className="mt-1 text-xs text-slate-500">Normalized query: {normalizedQuery}</p>}
+            {/* {normalizedQuery && (
+              <div className="mt-2 flex items-center gap-2 text-xs text-slate-500">
+                <span>⚙️</span>
+                <p>Normalized: {normalizedQuery}</p>
+              </div>
+            )} */}
           </section>
         )}
 
         {error && (
-          <p className="rounded-3xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700">
-            {error}
-          </p>
+          <div className="rounded-3xl border border-red-200 bg-red-50 p-5 shadow-md animate-fade-in">
+            <div className="flex items-start gap-3">
+              <span className="text-xl">⚠️</span>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-red-700">Search Error</p>
+                <p className="text-sm text-red-600 mt-1">{error}</p>
+              </div>
+            </div>
+          </div>
         )}
 
         <RecipeResults

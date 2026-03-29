@@ -22,7 +22,7 @@ type FolderItem = {
 type LandingPageProps = {
   token: string | null
 }
-type RecommendationApproach = 'tfidf' | 'lsa'
+type RecommendationApproach = 'tfidf' | 'lsa' | 'mf'
 
 const API_BASE_URL = 'http://127.0.0.1:8000'
 const DEFAULT_TOP_K = 8
@@ -171,38 +171,67 @@ function LandingPage({ token }: LandingPageProps) {
 
   const renderCards = (items: RecommendationItem[], loading: boolean, emptyMessage: string) => {
     if (loading) {
-      return <p className="text-slate-600">Loading recommendations...</p>
+      return (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="animate-pulse">
+              <div className="h-44 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200" />
+              <div className="mt-3 space-y-2">
+                <div className="h-4 w-3/4 rounded-lg bg-slate-200" />
+                <div className="h-3 w-1/2 rounded-lg bg-slate-200" />
+              </div>
+            </div>
+          ))}
+        </div>
+      )
     }
     if (items.length === 0) {
-      return <p className="text-slate-600">{emptyMessage}</p>
+      return (
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="rounded-full bg-slate-100 p-4">
+            <span className="text-4xl">🍽️</span>
+          </div>
+          <p className="mt-4 text-slate-600">{emptyMessage}</p>
+        </div>
+      )
     }
 
     return (
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {items.map((item) => (
+        {items.map((item, index) => (
           <article
             key={item.recipe_id}
-            className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+            className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-900/10 animate-fade-in"
+            style={{ animationDelay: `${index * 50}ms` }}
           >
-            <img
-              src={
-                toProxyImageUrl(
-                  item.image_url,
-                'https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80'
-                ) ?? undefined
-              }
-              alt={item.name}
-              className="h-32 w-full object-cover"
-            />
-            <div className="space-y-2 p-3">
-              <h3 className="line-clamp-2 text-sm font-semibold text-slate-900">{item.name}</h3>
-              <p className="text-xs text-amber-700">Score: {item.score.toFixed(4)}</p>
+            <div className="relative overflow-hidden">
+              <img
+                src={
+                  toProxyImageUrl(
+                    item.image_url,
+                  'https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80'
+                  ) ?? undefined
+                }
+                alt={item.name}
+                className="h-44 w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+            </div>
+            <div className="space-y-3 p-4">
+              <h3 className="line-clamp-2 text-sm font-semibold text-slate-900 group-hover:text-emerald-700 transition-colors">
+                {item.name}
+              </h3>
+              <div className="flex items-center gap-2">
+                <span className="rounded-full bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-700">
+                  ★ {item.score.toFixed(3)}
+                </span>
+              </div>
               <button
                 type="button"
                 onClick={() => setSelectedRecipeId(item.recipe_id)}
-                className="rounded-lg border border-slate-300 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs font-medium text-slate-700 transition-all duration-200 hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-700 active:scale-95"
               >
-                View Detail
+                View Recipe
               </button>
             </div>
           </article>

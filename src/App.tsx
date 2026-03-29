@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import AuthPage, { type AuthMode } from './pages/AuthPage'
 import AllBookmarks from './pages/AllBookmarks'
+import AuthPage, { type AuthMode } from './pages/AuthPage'
 import EvaluatePage from './pages/EvaluatePage'
 import Folder from './pages/Folder'
 import FolderDetail from './pages/FolderDetail'
@@ -291,63 +291,54 @@ function App() {
     )
   }
 
+  const isActive = (path: string) => {
+    if (path === '/' && pathname === '/') return true
+    if (path !== '/' && pathname.startsWith(path)) return true
+    return false
+  }
+
+  const navItems = [
+    { path: '/', label: 'Home', icon: '🏠' },
+    { path: '/search', label: 'Search', icon: '🔍' },
+    { path: '/folders', label: 'Folders', icon: '📁' },
+    { path: '/bookmarks', label: 'Bookmarks', icon: '🔖' },
+    { path: '/evaluate', label: 'Evaluate', icon: '📊' },
+    { path: '/rag', label: 'Ask AI', icon: '🤖' },
+  ]
+
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-40 border-b border-white/60 bg-white/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 border-b border-white/60 bg-white/90 backdrop-blur-xl shadow-sm">
         <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => navigate('/')}
-              className="rounded-full px-3 py-1.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
-            >
-              Home
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate('/search')}
-              className="rounded-full px-3 py-1.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
-            >
-              Search
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate('/folders')}
-              className="rounded-full px-3 py-1.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
-            >
-              Folder
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate('/bookmarks')}
-              className="rounded-full px-3 py-1.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
-            >
-              Bookmarks
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate('/evaluate')}
-              className="rounded-full px-3 py-1.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
-            >
-              Evaluate
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate('/rag')}
-              className="rounded-full px-3 py-1.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
-            >
-              RAG
-            </button>
+          <div className="flex items-center gap-2">
+            {navItems.map((item) => (
+              <button
+                key={item.path}
+                type="button"
+                onClick={() => navigate(item.path)}
+                className={`group relative rounded-full px-3 py-2 text-sm font-medium transition-all duration-200 ${
+                  isActive(item.path)
+                    ? 'bg-emerald-100 text-emerald-800 shadow-sm'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                }`}
+              >
+                {/* <span className="mr-1.5">{item.icon}</span> */}
+                <span className="relative z-10">{item.label}</span>
+                {isActive(item.path) && (
+                  <span className="absolute bottom-0 left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-full bg-emerald-500" />
+                )}
+              </button>
+            ))}
           </div>
           <div className="flex items-center gap-3">
-            <span className="hidden rounded-full bg-slate-100 px-3 py-1.5 text-sm font-medium text-slate-700 sm:inline-flex">
+            <span className="hidden rounded-full bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm sm:inline-flex">
               {displayName}
             </span>
             <button
               type="button"
               onClick={handleLogout}
               disabled={isSubmitting}
-              className="rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-70"
+              className="rounded-full bg-gradient-to-br from-slate-800 to-slate-900 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-slate-900/20 transition-all duration-200 hover:from-slate-700 hover:to-slate-800 hover:shadow-xl hover:shadow-slate-900/30 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
             >
               Logout
             </button>

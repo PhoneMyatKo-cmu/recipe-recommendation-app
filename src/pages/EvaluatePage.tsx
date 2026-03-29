@@ -116,20 +116,25 @@ function EvaluatePage({ token }: EvaluatePageProps) {
   return (
     <main className="min-h-screen px-4 py-10">
       <section className="mx-auto flex max-w-6xl flex-col gap-6">
-        <header className="space-y-2 rounded-3xl border border-white/70 bg-white/85 p-6 shadow-lg shadow-slate-900/5 backdrop-blur-xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-600">Evaluation</p>
+        <header className="space-y-3 rounded-3xl border border-white/70 bg-gradient-to-br from-white/90 to-purple-50/30 p-6 shadow-lg shadow-slate-900/5 backdrop-blur-xl animate-fade-in">
+          <div className="flex items-center gap-3">
+            <div className="rounded-full bg-purple-100 p-2">
+              <span className="text-2xl">📊</span>
+            </div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-purple-600">Evaluation</p>
+          </div>
           <h1 className="text-4xl font-bold tracking-tight text-slate-900">Recommendation Evaluation</h1>
-          <p className="text-slate-600">Compare methods with leave-out style Precision@K against the same ground truth.</p>
+          <p className="text-slate-600">Compare recommendation methods with leave-out style Precision@K evaluation.</p>
         </header>
 
         <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5">
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
             <div>
-              <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">Folder</label>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">Folder</label>
               <select
                 value={folderId ?? ''}
                 onChange={(event) => setFolderId(Number(event.target.value))}
-                className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-slate-800"
+                className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-slate-800 shadow-sm transition-all duration-200 hover:border-slate-400 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20"
                 disabled={folders.length === 0}
               >
                 {folders.length === 0 && <option value="">No folder available</option>}
@@ -142,28 +147,26 @@ function EvaluatePage({ token }: EvaluatePageProps) {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">K</label>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">K (Top Items)</label>
               <input
                 type="number"
                 min={1}
                 max={100}
                 value={k}
                 onChange={(event) => setK(Number(event.target.value))}
-                className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-slate-800"
+                className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-slate-800 shadow-sm transition-all duration-200 hover:border-slate-400 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20"
               />
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
-                Holdout Count
-              </label>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">Holdout Count</label>
               <input
                 type="number"
                 min={1}
                 max={10}
                 value={holdoutCount}
                 onChange={(event) => setHoldoutCount(Number(event.target.value))}
-                className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-slate-800"
+                className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-slate-800 shadow-sm transition-all duration-200 hover:border-slate-400 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20"
               />
             </div>
 
@@ -172,48 +175,113 @@ function EvaluatePage({ token }: EvaluatePageProps) {
                 type="button"
                 onClick={handleEvaluate}
                 disabled={isLoading}
-                className="h-11 w-full rounded-xl bg-slate-900 px-4 text-sm font-semibold text-white hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-70"
+                className="h-11 w-full rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 px-4 text-sm font-semibold text-white shadow-lg shadow-purple-900/20 transition-all duration-200 hover:from-purple-700 hover:to-indigo-700 hover:shadow-xl hover:shadow-purple-900/30 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
               >
-                {isLoading ? 'Evaluating...' : 'Run Evaluation'}
+                {isLoading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    Evaluating...
+                  </span>
+                ) : (
+                  <span className="flex items-center justify-center gap-2">
+                    <span>▶️</span> Run Evaluation
+                  </span>
+                )}
               </button>
             </div>
           </div>
         </section>
 
         {error && (
-          <p className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700">
-            {error}
-          </p>
+          <div className="rounded-3xl border border-red-200 bg-red-50 p-5 shadow-md animate-fade-in">
+            <div className="flex items-start gap-3">
+              <span className="text-xl">⚠️</span>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-red-700">Error</p>
+                <p className="text-sm text-red-600 mt-1">{error}</p>
+              </div>
+            </div>
+          </div>
         )}
 
         {result && (
           <>
-            <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5">
-              <h2 className="text-xl font-semibold text-slate-900">Evaluation Setup</h2>
-              <p className="mt-2 text-sm text-slate-600">Seed recipes: {result.seed_recipe_ids.join(', ') || '-'}</p>
-              <p className="mt-1 text-sm text-slate-600">
-                Holdout recipes (ground truth): {result.holdout_recipe_ids.join(', ') || '-'}
-              </p>
+            <section className="rounded-3xl border border-white/70 bg-gradient-to-br from-purple-50 to-indigo-50 p-5 shadow-lg shadow-slate-900/5 animate-scale-in">
+              <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
+                <span>⚙️</span> Evaluation Setup
+              </h2>
+              <div className="mt-3 space-y-2">
+                <div className="flex items-start gap-2">
+                  <span className="text-slate-500">📋</span>
+                  <p className="text-sm text-slate-700">
+                    <span className="font-medium">Seed recipes:</span> {result.seed_recipe_ids.length > 0 ? result.seed_recipe_ids.join(', ') : 'None'}
+                  </p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-slate-500">🎯</span>
+                  <p className="text-sm text-slate-700">
+                    <span className="font-medium">Holdout recipes (ground truth):</span> {result.holdout_recipe_ids.length > 0 ? result.holdout_recipe_ids.join(', ') : 'None'}
+                  </p>
+                </div>
+              </div>
             </section>
 
             <section className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              {result.results.map((method) => (
+              {result.results.map((method, index) => (
                 <article
                   key={method.approach}
-                  className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5"
+                  className="group overflow-hidden rounded-3xl border border-white/70 bg-white p-5 shadow-lg shadow-slate-900/5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-900/10 animate-fade-in"
+                  style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  <h3 className="text-lg font-semibold text-slate-900">{method.approach.toUpperCase()}</h3>
-                  <p className="mt-2 text-sm text-slate-600">
-                    Precision@{result.k}:{' '}
-                    <span className="font-semibold text-emerald-700">{method.precision_at_k.toFixed(4)}</span>
-                  </p>
-                  <p className="mt-1 text-sm text-slate-600">Hits: {method.hits}</p>
-                  <p className="mt-2 text-xs font-medium uppercase tracking-wide text-slate-500">
-                    Recommended Recipe IDs
-                  </p>
-                  <p className="text-sm text-slate-700">{method.recommended_recipe_ids.join(', ') || '-'}</p>
-                  <p className="mt-2 text-xs font-medium uppercase tracking-wide text-slate-500">Hit Recipe IDs</p>
-                  <p className="text-sm text-slate-700">{method.hit_recipe_ids.join(', ') || '-'}</p>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-lg font-bold text-slate-900">{method.approach.toUpperCase()}</h3>
+                    <div className="rounded-full bg-purple-100 px-3 py-1 text-sm font-semibold text-purple-700">
+                      P@{result.k}
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="rounded-xl border border-purple-200 bg-purple-50 p-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-purple-700">Precision@{result.k}</span>
+                        <span className="text-lg font-bold text-purple-900">
+                          {(method.precision_at_k * 100).toFixed(1)}%
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-slate-600">Hits</span>
+                      <span className="font-semibold text-slate-900">{method.hits} / {result.holdout_count}</span>
+                    </div>
+
+                    <div className="border-t border-slate-100 pt-3">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">
+                        Recommended Recipe IDs
+                      </p>
+                      <p className="text-sm text-slate-700 break-all">{method.recommended_recipe_ids.length > 0 ? method.recommended_recipe_ids.join(', ') : 'None'}</p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">
+                        Hit Recipe IDs
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {method.hit_recipe_ids.length > 0 ? (
+                          method.hit_recipe_ids.map((id) => (
+                            <span
+                              key={id}
+                              className="inline-flex rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700"
+                            >
+                              {id}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-sm text-slate-500">None</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </article>
               ))}
             </section>
