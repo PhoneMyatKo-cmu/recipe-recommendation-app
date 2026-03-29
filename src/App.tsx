@@ -24,11 +24,11 @@ type UserDetailResponse = {
 
 const API_BASE_URL = 'http://127.0.0.1:8000'
 
-function extractToken(data: AuthResponse): string | null {
+export function extractToken(data: AuthResponse): string | null {
   return data.access_token ?? data.token ?? data.bearer_token ?? null
 }
 
-function getFolderIdFromPath(pathname: string): number | null {
+export function getFolderIdFromPath(pathname: string): number | null {
   const match = pathname.match(/^\/folders\/(\d+)$/)
   if (!match) {
     return null
@@ -302,7 +302,7 @@ function App() {
     { path: '/search', label: 'Search', icon: '🔍' },
     { path: '/folders', label: 'Folders', icon: '📁' },
     { path: '/bookmarks', label: 'Bookmarks', icon: '🔖' },
-    { path: '/evaluate', label: 'Evaluate', icon: '📊' },
+    // { path: '/evaluate', label: 'Evaluate', icon: '📊' },
     { path: '/rag', label: 'Ask AI', icon: '🤖' },
   ]
 

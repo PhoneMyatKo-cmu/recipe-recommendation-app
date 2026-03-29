@@ -271,7 +271,7 @@ function LandingPage({ token }: LandingPageProps) {
 
         <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-slate-900">From All Folders</h2>
+            <h2 className="text-xl font-semibold text-slate-900">Based on Your Saved Recipes</h2>
             <button
               type="button"
               onClick={loadAllRecommendations}
@@ -285,7 +285,7 @@ function LandingPage({ token }: LandingPageProps) {
 
         <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5">
           <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <h2 className="text-xl font-semibold text-slate-900">From Specific Folder</h2>
+            <h2 className="text-xl font-semibold text-slate-900">Based on a Folder You Choose</h2>
             <div className="flex items-end gap-2">
               <div>
                 <label className="mb-1 block text-xs font-medium text-slate-600">Folder</label>
@@ -321,7 +321,7 @@ function LandingPage({ token }: LandingPageProps) {
 
         <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-slate-900">Random Picks</h2>
+            <h2 className="text-xl font-semibold text-slate-900">Discover Something New</h2>
             <button
               type="button"
               onClick={loadRandomRecommendations}
