@@ -214,7 +214,7 @@ function AllBookmarks({ token, userId }: AllBookmarksProps) {
         <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5">
           <div className="mb-5 flex items-center justify-between">
             <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
-              <span>⭐</span> {groupByFolder ? 'Group By Folder' : 'Community Ranked'}
+              <span>⭐</span> {groupByFolder ? 'Group By Cookbook' : 'Community Ranked'}
             </h2>
             <div className="flex items-center gap-2">
               <button
@@ -222,7 +222,7 @@ function AllBookmarks({ token, userId }: AllBookmarksProps) {
                 onClick={() => setGroupByFolder((prev) => !prev)}
                 className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:border-slate-400 hover:bg-slate-50 active:scale-95"
               >
-                {groupByFolder ? 'Ungroup' : 'Group by Folder'}
+                {groupByFolder ? 'Ungroup' : 'Group by Cookbook'}
               </button>
               <button
                 type="button"

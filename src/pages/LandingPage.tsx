@@ -23,13 +23,11 @@ type LandingPageProps = {
   token: string | null
   bookmarkCount?: number | null
 }
-type RecommendationApproach = 'tfidf' | 'lsa' | 'mf'
 
 const API_BASE_URL = 'http://127.0.0.1:8000'
 const DEFAULT_TOP_K = 8
 
 function LandingPage({ token, bookmarkCount = null }: LandingPageProps) {
-  const [approach, setApproach] = useState<RecommendationApproach>('tfidf')
   const [folders, setFolders] = useState<FolderItem[]>([])
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null)
   const [hasBookmarkedThisSession, setHasBookmarkedThisSession] = useState(false)
@@ -70,13 +68,13 @@ function LandingPage({ token, bookmarkCount = null }: LandingPageProps) {
         headers: getAuthHeaders(),
       })
       if (!response.ok) {
-        throw new Error(await getErrorMessage(response, 'Failed to load folders.'))
+        throw new Error(await getErrorMessage(response, 'Failed to load cookbooks.'))
       }
       const data = (await response.json()) as FolderItem[]
       setFolders(data)
       setSelectedFolderId(data.length > 0 ? data[0].folder_id : null)
     } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : 'Failed to load folders.')
+      setError(requestError instanceof Error ? requestError.message : 'Failed to load cookbooks.')
       setFolders([])
       setSelectedFolderId(null)
     }
@@ -87,13 +85,13 @@ function LandingPage({ token, bookmarkCount = null }: LandingPageProps) {
     setError(null)
     try {
       const response = await fetch(
-        `${API_BASE_URL}/recommendations/all?top_k=${DEFAULT_TOP_K}&approach=${approach}`,
+        `${API_BASE_URL}/recommendations/all?top_k=${DEFAULT_TOP_K}&approach=tfidf`,
         {
           headers: getAuthHeaders(),
         },
       )
       if (!response.ok) {
-        throw new Error(await getErrorMessage(response, 'Failed to load recommendations from all folders.'))
+        throw new Error(await getErrorMessage(response, 'Failed to load recommendations from all cookbooks.'))
       }
       const data = (await response.json()) as RecommendationResponse
       setAllRecs(data.results ?? [])
@@ -101,13 +99,13 @@ function LandingPage({ token, bookmarkCount = null }: LandingPageProps) {
       setError(
         requestError instanceof Error
           ? requestError.message
-          : 'Failed to load recommendations from all folders.',
+          : 'Failed to load recommendations from all cookbooks.',
       )
       setAllRecs([])
     } finally {
       setIsLoadingAll(false)
     }
-  }, [getAuthHeaders, approach])
+  }, [getAuthHeaders])
 
   const loadPopularRecommendations = useCallback(async () => {
     setIsLoadingPopular(true)
@@ -134,30 +132,30 @@ function LandingPage({ token, bookmarkCount = null }: LandingPageProps) {
     setError(null)
     try {
       const response = await fetch(
-        `${API_BASE_URL}/recommendations/folder/${folderId}?top_k=${DEFAULT_TOP_K}&approach=${approach}`,
+        `${API_BASE_URL}/recommendations/folder/${folderId}?top_k=${DEFAULT_TOP_K}&approach=tfidf`,
         {
           headers: getAuthHeaders(),
         },
       )
       if (!response.ok) {
-        throw new Error(await getErrorMessage(response, 'Failed to load folder recommendations.'))
+        throw new Error(await getErrorMessage(response, 'Failed to load cookbook recommendations.'))
       }
       const data = (await response.json()) as RecommendationResponse
       setFolderRecs(data.results ?? [])
     } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : 'Failed to load folder recommendations.')
+      setError(requestError instanceof Error ? requestError.message : 'Failed to load cookbook recommendations.')
       setFolderRecs([])
     } finally {
       setIsLoadingFolder(false)
     }
-  }, [getAuthHeaders, approach])
+  }, [getAuthHeaders])
 
   const loadRandomRecommendations = useCallback(async () => {
     setIsLoadingRandom(true)
     setError(null)
     try {
       const response = await fetch(
-        `${API_BASE_URL}/recommendations/random?top_k=${DEFAULT_TOP_K}&approach=${approach}`,
+        `${API_BASE_URL}/recommendations/random?top_k=${DEFAULT_TOP_K}&approach=tfidf`,
         {
           headers: getAuthHeaders(),
         },
@@ -173,7 +171,7 @@ function LandingPage({ token, bookmarkCount = null }: LandingPageProps) {
     } finally {
       setIsLoadingRandom(false)
     }
-  }, [getAuthHeaders, approach])
+  }, [getAuthHeaders])
 
   useEffect(() => {
     if (!token) {
@@ -288,21 +286,7 @@ function LandingPage({ token, bookmarkCount = null }: LandingPageProps) {
         <header className="space-y-2 rounded-3xl border border-white/70 bg-white/85 p-6 shadow-lg shadow-slate-900/5 backdrop-blur-xl">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-600">Recommendations</p>
           <h1 className="text-4xl font-bold text-slate-900">Food Bookmarking & Recommendation</h1>
-          <p className="text-slate-600">Three recommendation categories based on your bookmarks and folders.</p>
-          <div className="pt-2">
-            <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
-              Recommendation Approach
-            </label>
-            <select
-              value={approach}
-              onChange={(event) => setApproach(event.target.value as RecommendationApproach)}
-              className="h-10 min-w-40 rounded-lg border border-slate-300 bg-white px-3 text-slate-800"
-            >
-              <option value="tfidf">TF-IDF</option>
-              <option value="lsa">LSA</option>
-              <option value="mf"> Matrix Factorization</option>
-            </select>
-          </div>
+          <p className="text-slate-600">Three recommendation categories based on your bookmarks and cookbooks.</p>
         </header>
 
         {error && (
@@ -343,17 +327,17 @@ function LandingPage({ token, bookmarkCount = null }: LandingPageProps) {
 
         <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5">
           <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <h2 className="text-xl font-semibold text-slate-900">Based on a Folder You Choose</h2>
+            <h2 className="text-xl font-semibold text-slate-900">Based on a Cookbook You Choose</h2>
             <div className="flex items-end gap-2">
               <div>
-                <label className="mb-1 block text-xs font-medium text-slate-600">Folder</label>
+                <label className="mb-1 block text-xs font-medium text-slate-600">Cookbook</label>
                 <select
                   value={selectedFolderId ?? ''}
                   onChange={(event) => setSelectedFolderId(Number(event.target.value))}
                   className="h-10 min-w-52 rounded-lg border border-slate-300 bg-white px-3 text-slate-800"
                   disabled={folders.length === 0}
                 >
-                  {folders.length === 0 && <option value="">No folder available</option>}
+                  {folders.length === 0 && <option value="">No cookbook available</option>}
                   {folders.map((folder) => (
                     <option key={folder.folder_id} value={folder.folder_id}>
                       {folder.name}
@@ -374,7 +358,7 @@ function LandingPage({ token, bookmarkCount = null }: LandingPageProps) {
               </button>
             </div>
           </div>
-          {renderCards(folderRecs, isLoadingFolder, 'No recommendations for this folder yet.')}
+          {renderCards(folderRecs, isLoadingFolder, 'No recommendations for this cookbook yet.')}
         </section>
 
         <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5">

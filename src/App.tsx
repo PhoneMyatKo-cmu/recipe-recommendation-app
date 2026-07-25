@@ -300,7 +300,7 @@ function App() {
   const navItems = [
     { path: '/', label: 'Home', icon: '🏠' },
     { path: '/search', label: 'Search', icon: '🔍' },
-    { path: '/folders', label: 'Folders', icon: '📁' },
+    { path: '/folders', label: 'Cookbooks', icon: '📁' },
     { path: '/bookmarks', label: 'Bookmarks', icon: '🔖' },
     // { path: '/evaluate', label: 'Evaluate', icon: '📊' },
     { path: '/rag', label: 'Ask AI', icon: '🤖' },

@@ -162,10 +162,10 @@ function Folder({ token, onOpenFolder }: FolderPageProps) {
             <div className="rounded-full bg-blue-100 p-2">
               <span className="text-2xl">📁</span>
             </div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-600">Folders</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-600">Cookbooks</p>
           </div>
-          <h1 className="text-4xl font-bold tracking-tight text-slate-900">Manage your folders</h1>
-          <p className="text-slate-600">Create folders and organize your recipe bookmarks.</p>
+          <h1 className="text-4xl font-bold tracking-tight text-slate-900">Manage your Cookbooks</h1>
+          <p className="text-slate-600">Create Cookbooks and organize your recipe bookmarks.</p>
         </header>
 
         <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5">
@@ -174,7 +174,7 @@ function Folder({ token, onOpenFolder }: FolderPageProps) {
               type="text"
               value={newFolderName}
               onChange={(event) => setNewFolderName(event.target.value)}
-              placeholder="Enter folder name..."
+              placeholder="Enter cookbook name..."
               className="h-11 flex-1 rounded-xl border border-slate-300 bg-white px-4 text-slate-800 shadow-sm transition-all duration-200 hover:border-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20"
             />
             <button
@@ -190,7 +190,7 @@ function Folder({ token, onOpenFolder }: FolderPageProps) {
                 </span>
               ) : (
                 <span className="flex items-center gap-2">
-                  <span>+</span> Create Folder
+                  <span>+</span> Create Cookbook
                 </span>
               )}
             </button>
@@ -211,21 +211,21 @@ function Folder({ token, onOpenFolder }: FolderPageProps) {
 
         <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5">
           <h2 className="mb-5 text-xl font-semibold text-slate-900 flex items-center gap-2">
-            Your folders
+            Your Cookbooks
           </h2>
 
           {isLoadingFolders ? (
             <div className="flex flex-col items-center justify-center py-12">
               <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
-              <p className="mt-4 text-slate-600">Loading folders...</p>
+              <p className="mt-4 text-slate-600">Loading cookbooks...</p>
             </div>
           ) : folders.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12">
               <div className="rounded-full bg-slate-100 p-4">
                 <span className="text-4xl">📁</span>
               </div>
-              <p className="mt-4 text-slate-600">No folders yet.</p>
-              <p className="mt-2 text-sm text-slate-500">Create your first folder to start organizing recipes!</p>
+              <p className="mt-4 text-slate-600">No Cookbooks yet.</p>
+              <p className="mt-2 text-sm text-slate-500">Create your first Cookbooks to start organizing recipes!</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">

@@ -159,13 +159,13 @@ function FolderDetail({ token, folderId, onBack }: FolderDetailProps) {
           onClick={onBack}
           className="w-fit rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:border-blue-500 hover:bg-blue-50 hover:text-blue-700 active:scale-95"
         >
-          ← Back to Folders
+          ← Back to Cookbooks
         </button>
 
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-12">
             <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
-            <p className="mt-4 text-slate-600">Loading folder detail...</p>
+            <p className="mt-4 text-slate-600">Loading cookbook detail...</p>
           </div>
         ) : error ? (
           <div className="rounded-3xl border border-red-200 bg-red-50 p-5 shadow-md animate-fade-in">
@@ -184,10 +184,10 @@ function FolderDetail({ token, folderId, onBack }: FolderDetailProps) {
                 <div className="rounded-full bg-blue-100 p-2">
                   <span className="text-2xl">📁</span>
                 </div>
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-600">Folder Detail</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-600">Cookbook Detail</p>
               </div>
               <h1 className="text-4xl font-bold tracking-tight text-slate-900">
-                {folder?.name ?? `Folder #${folderId}`}
+                {folder?.name ?? `Cookbook #${folderId}`}
               </h1>
             </header>
 
@@ -202,7 +202,7 @@ function FolderDetail({ token, folderId, onBack }: FolderDetailProps) {
                   {/* <div className="rounded-full bg-slate-100 p-4">
                     <span className="text-4xl">🔖</span>
                   </div> */}
-                  <p className="mt-4 text-slate-600">This folder is empty.</p>
+                  <p className="mt-4 text-slate-600">This cookbook is empty.</p>
                   <p className="mt-2 text-sm text-slate-500">Search and bookmark recipes to get started!</p>
                 </div>
               ) : (
@@ -295,7 +295,7 @@ function FolderDetail({ token, folderId, onBack }: FolderDetailProps) {
                     <span className="text-4xl">💡</span>
                   </div>
                   <p className="mt-4 text-slate-600">
-                    Click <span className="font-semibold text-slate-900">Generate Suggestions</span> to get personalized recommendations based on this folder's content.
+                    Click <span className="font-semibold text-slate-900">Generate Suggestions</span> to get personalized recommendations based on this cookbook's content.
                   </p>
                 </div>
               ) : recommendationError ? (
@@ -310,7 +310,7 @@ function FolderDetail({ token, folderId, onBack }: FolderDetailProps) {
                   {/* <div className="rounded-full bg-slate-100 p-4">
                     <span className="text-4xl">📭</span>
                   </div> */}
-                  <p className="mt-4 text-slate-600">No suggestions available for this folder yet.</p>
+                  <p className="mt-4 text-slate-600">No suggestions available for this cookbook yet.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

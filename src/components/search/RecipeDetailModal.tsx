@@ -79,7 +79,7 @@ function RecipeDetailModal({
         },
       })
       if (!response.ok) {
-        throw new Error(await getErrorMessage(response, 'Failed to load folders.'))
+        throw new Error(await getErrorMessage(response, 'Failed to load cookbooks.'))
       }
 
       const data = (await response.json()) as FolderResponse[]
@@ -92,7 +92,7 @@ function RecipeDetailModal({
     } catch (requestError) {
       setFolders([])
       setSelectedFolderId(null)
-      setFolderError(requestError instanceof Error ? requestError.message : 'Failed to load folders.')
+      setFolderError(requestError instanceof Error ? requestError.message : 'Failed to load cookbooks.')
     } finally {
       setIsLoadingFolders(false)
     }
@@ -118,7 +118,7 @@ function RecipeDetailModal({
       return
     }
     if (!selectedFolderId) {
-      setBookmarkError('Please select a folder.')
+      setBookmarkError('Please select a cookbook.')
       return
     }
 
@@ -340,7 +340,7 @@ function RecipeDetailModal({
                   {isLoadingFolders && (
                     <div className="flex items-center gap-2 text-sm text-slate-600">
                       <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-slate-600" />
-                      Loading folders...
+                      Loading cookbooks...
                     </div>
                   )}
                   {!isLoadingFolders && folderError && (
@@ -348,14 +348,14 @@ function RecipeDetailModal({
                   )}
                   {!isLoadingFolders && !folderError && folders.length === 0 && (
                     <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
-                      <p className="text-sm text-amber-700">No folders found. Create a folder first.</p>
+                      <p className="text-sm text-amber-700">No cookbooks found. Create a cookbook first.</p>
                     </div>
                   )}
 
                   {!isLoadingFolders && folders.length > 0 && (
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
                       <div className="flex-1">
-                        <label className="mb-1.5 block text-sm font-medium text-slate-700">Folder</label>
+                        <label className="mb-1.5 block text-sm font-medium text-slate-700">Cookbook</label>
                         <select
                           value={selectedFolderId ?? ''}
                           onChange={(event) => setSelectedFolderId(Number(event.target.value))}
