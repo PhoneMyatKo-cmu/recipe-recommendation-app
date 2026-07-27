@@ -26,7 +26,7 @@ There is no separate typecheck script — `npm run build` runs `tsc -b`. Vitest 
 
 ## Backend dependency
 
-Every page calls a backend hardcoded as `const API_BASE_URL = 'http://127.0.0.1:8000'`. This constant is **duplicated in each file** that makes requests (`App.tsx`, all pages, `utils/imageUrl.ts`, `RecipeDetailModal.tsx`) rather than centralized — change it everywhere if the backend URL moves. Without the backend running on port 8000, the app renders but all data operations fail.
+Every page calls a backend whose base URL is centralized in `src/config.ts` as `export const API_BASE_URL`. All pages, components, `utils/imageUrl.ts`, and tests import it from there — change the URL in that one file only. It currently points at a remote deployment (`https://143.198.121.254.nip.io`); for local backend development, point it at `http://127.0.0.1:8000`. Without a reachable backend, the app renders but all data operations fail.
 
 Key backend endpoints in use: `/auth/{register,login,logout}`, `/users/me`, `/search`, `/rag/ask`, `/recommendations/{all,popular,random}`, `/folders`, `/folders/{id}/recommendations`, `/bookmarks`, `/recipes/{id}`, `/image-proxy/image-proxy`, `/evaluate`.
 

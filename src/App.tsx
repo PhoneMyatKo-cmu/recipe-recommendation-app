@@ -22,7 +22,7 @@ type UserDetailResponse = {
   bookmark_count: number
 }
 
-const API_BASE_URL = 'http://127.0.0.1:8000'
+import { API_BASE_URL } from './config'
 
 export function extractToken(data: AuthResponse): string | null {
   return data.access_token ?? data.token ?? data.bearer_token ?? null

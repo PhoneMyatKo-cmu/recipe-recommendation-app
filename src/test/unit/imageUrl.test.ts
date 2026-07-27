@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { API_BASE_URL } from '../../config'
 import { normalizeImageUrl, toProxyImageUrl } from '../../utils/imageUrl'
 
 describe('normalizeImageUrl', () => {
@@ -42,13 +43,13 @@ describe('normalizeImageUrl', () => {
 describe('toProxyImageUrl', () => {
   it('returns encoded proxy URL for valid image URL', () => {
     expect(toProxyImageUrl('https://example.com/x.jpg')).toBe(
-      'http://127.0.0.1:8000/image-proxy/image-proxy?url=https%3A%2F%2Fexample.com%2Fx.jpg',
+      `${API_BASE_URL}/image-proxy/image-proxy?url=https%3A%2F%2Fexample.com%2Fx.jpg`,
     )
   })
 
   it('falls back to fallback URL when primary is invalid', () => {
     expect(toProxyImageUrl('invalid', 'https://example.com/fallback.webp')).toBe(
-      'http://127.0.0.1:8000/image-proxy/image-proxy?url=https%3A%2F%2Fexample.com%2Ffallback.webp',
+      `${API_BASE_URL}/image-proxy/image-proxy?url=https%3A%2F%2Fexample.com%2Ffallback.webp`,
     )
   })
 
