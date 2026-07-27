@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import RecipeDetailModal from '../components/search/RecipeDetailModal'
-import { toProxyImageUrl } from '../utils/imageUrl'
+import RecipeCard, { type RecipeCardData } from '../components/shared/RecipeCard'
+import RecipeCardSkeleton from '../components/shared/RecipeCardSkeleton'
 
 // Custom hook for scroll reveal animation
 function useScrollReveal(itemCount: number) {
@@ -27,7 +28,6 @@ function useScrollReveal(itemCount: number) {
       }
     )
 
-    // Observe all current elements
     elementRefs.current.forEach((element) => {
       if (element) {
         observerRef.current?.observe(element)
@@ -76,11 +76,11 @@ function StarRating({ rating }: { rating: number | null }) {
   return (
     <div className="flex items-center gap-1">
       {Array.from({ length: 5 }, (_, i) => (
-        <span key={i} className={i < fullStars ? 'text-amber-500' : 'text-slate-300'}>
+        <span key={i} className={i < fullStars ? 'text-amber-500' : 'text-stone-300'}>
           ★
         </span>
       ))}
-      <span className="ml-1 text-xs text-slate-500">{rating !== null ? rating.toFixed(2) : 'N/A'}</span>
+      <span className="ml-1 text-xs text-stone-500">{rating !== null ? rating.toFixed(2) : 'N/A'}</span>
     </div>
   )
 }
@@ -92,7 +92,6 @@ function AllBookmarks({ token, userId }: AllBookmarksProps) {
   const [selectedRecipeId, setSelectedRecipeId] = useState<number | null>(null)
   const [groupByFolder, setGroupByFolder] = useState(false)
 
-  // Scroll reveal animation
   const { revealedIndexes, setElementRef } = useScrollReveal(items.length)
 
   const groupedFolders = useMemo(() => {
@@ -185,22 +184,42 @@ function AllBookmarks({ token, userId }: AllBookmarksProps) {
     loadBookmarks()
   }, [loadBookmarks])
 
+  const convertToCardData = (item: BookmarkCommunityRankResponse): RecipeCardData => ({
+    recipe_id: item.recipe_id,
+    name: item.recipe_name,
+    image_url: item.image_url,
+    score: item.rating / 5, // Normalize rating to 0-1
+    rating: item.aggregated_rating ?? undefined,
+  })
+
   return (
-    <main className="min-h-screen px-4 py-10">
-      <section className="mx-auto flex max-w-6xl flex-col gap-6">
-        <header className="space-y-3 rounded-3xl border border-white/70 bg-gradient-to-br from-white/90 to-amber-50/30 p-6 shadow-lg shadow-slate-900/5 backdrop-blur-xl animate-fade-in">
+    <main className="min-h-screen bg-gradient-to-br from-amber-50/50 to-orange-50/30">
+      <section className="mx-auto max-w-7xl px-4 py-8">
+        {/* Header */}
+        <header className="mb-8 space-y-4 rounded-3xl bg-gradient-to-br from-orange-500 to-red-500 p-8 text-white shadow-xl shadow-orange-500/20 animate-fade-in">
           <div className="flex items-center gap-3">
-            {/* <div className="rounded-full bg-amber-100 p-2">
-              <span className="text-2xl">🔖</span>
-            </div> */}
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-600">Bookmarks</p>
+            <span className="text-3xl">🔖</span>
+            <p className="text-sm font-semibold uppercase tracking-wider opacity-90">
+              My Bookmarks
+            </p>
           </div>
-          <h1 className="text-4xl font-bold tracking-tight text-slate-900">All Bookmarks</h1>
-          <p className="text-slate-600">Your saved recipes, ranked by community rating and popularity.</p>
+          <h1 className="text-4xl font-bold sm:text-5xl">
+            Your Saved Recipes
+          </h1>
+          <p className="max-w-2xl text-lg opacity-90">
+            All your favorite recipes in one place, ranked by community ratings and popularity.
+          </p>
+          <div className="mt-4 flex items-center gap-4">
+            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 backdrop-blur-sm">
+              <span className="text-xl">📖</span>
+              <span className="font-semibold">{items.length} recipes</span>
+            </div>
+          </div>
         </header>
 
+        {/* Error Display */}
         {error && (
-          <div className="rounded-3xl border border-red-200 bg-red-50 p-5 shadow-md animate-fade-in">
+          <div className="mb-8 rounded-2xl border border-red-200 bg-red-50 p-5 shadow-md animate-fade-in">
             <div className="flex items-start gap-3">
               <span className="text-xl">⚠️</span>
               <div className="flex-1">
@@ -211,160 +230,131 @@ function AllBookmarks({ token, userId }: AllBookmarksProps) {
           </div>
         )}
 
-        <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5">
-          <div className="mb-5 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
-              <span>⭐</span> {groupByFolder ? 'Group By Cookbook' : 'Community Ranked'}
+        {/* Controls */}
+        <section className="mb-6 rounded-2xl border border-stone-200 bg-white/90 p-4 shadow-lg backdrop-blur-xl">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <h2 className="text-lg font-bold text-stone-900">
+              {items.length} Saved Recipes
             </h2>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={() => setGroupByFolder((prev) => !prev)}
-                className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:border-slate-400 hover:bg-slate-50 active:scale-95"
+                className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
+                  groupByFolder
+                    ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20'
+                    : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                }`}
               >
-                {groupByFolder ? 'Ungroup' : 'Group by Cookbook'}
+                {groupByFolder ? '📖 Grouped by Cookbook' : '📖 Group by Cookbook'}
               </button>
               <button
                 type="button"
                 onClick={loadBookmarks}
-                className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:border-slate-400 hover:bg-slate-50 active:scale-95"
+                disabled={isLoading}
+                className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-600 transition-all hover:bg-stone-50 disabled:opacity-50"
               >
-                Refresh
+                🔄 Refresh
               </button>
             </div>
           </div>
+        </section>
 
-          {!userId ? (
-            <div className="flex flex-col items-center justify-center py-12">
-              <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-amber-600" />
-              <p className="mt-4 text-slate-600">Loading user profile...</p>
+        {/* Loading State */}
+        {isLoading && (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <RecipeCardSkeleton key={i} variant="full" />
+            ))}
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!isLoading && items.length === 0 && (
+          <div className="flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-stone-300 bg-white/50 py-16">
+            <div className="rounded-full bg-orange-100 p-6">
+              <span className="text-5xl">🔖</span>
             </div>
-          ) : isLoading ? (
-            <div className="flex flex-col items-center justify-center py-12">
-              <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-amber-600" />
-              <p className="mt-4 text-slate-600">Loading bookmarks...</p>
-            </div>
-          ) : items.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12">
-              {/* <div className="rounded-full bg-slate-100 p-4">
-                <span className="text-4xl">🔖</span>
-              </div> */}
-              <p className="mt-4 text-slate-600">No bookmarks found yet.</p>
-              <p className="mt-2 text-sm text-slate-500">Start exploring recipes and bookmark your favorites!</p>
-            </div>
-          ) : groupByFolder ? (
-            <div className="space-y-4">
-              {groupedFolders.map((folderGroup) => (
-                <section
-                  key={folderGroup.folder_id}
-                  className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
-                >
-                  <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-3">
+            <h3 className="mt-4 text-xl font-semibold text-stone-900">
+              No Bookmarks Yet
+            </h3>
+            <p className="mt-2 text-stone-500">
+              Start exploring recipes and bookmark your favorites!
+            </p>
+          </div>
+        )}
+
+        {/* Grouped View */}
+        {!isLoading && items.length > 0 && groupByFolder && (
+          <div className="space-y-8">
+            {groupedFolders.map((folderGroup) => (
+              <section
+                key={folderGroup.folder_id}
+                className="rounded-2xl border border-stone-200 bg-white/90 p-6 shadow-lg backdrop-blur-xl"
+              >
+                <div className="mb-6 flex items-center justify-between border-b border-stone-200 pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-xl bg-gradient-to-br from-orange-500 to-red-500 p-3 shadow-lg shadow-orange-500/20">
+                      <span className="text-2xl">📖</span>
+                    </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-slate-900">{folderGroup.folder_name}</h3>
-                      <p className="text-sm text-slate-600">
-                        Average user rating: ⭐ {folderGroup.average_user_rating.toFixed(2)} / 5
+                      <h3 className="text-xl font-bold text-stone-900">{folderGroup.folder_name}</h3>
+                      <p className="text-sm text-stone-600">
+                        ⭐ {folderGroup.average_user_rating.toFixed(2)} avg rating • {folderGroup.bookmarks.length} recipes
                       </p>
                     </div>
-                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
-                      {folderGroup.bookmarks.length} bookmark{folderGroup.bookmarks.length > 1 ? 's' : ''}
-                    </span>
                   </div>
+                </div>
 
-                  <ul className="space-y-3">
-                    {folderGroup.bookmarks.map((item) => (
-                      <li key={item.bookmark_id} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                        <div className="flex gap-3">
-                          <img
-                            src={
-                              toProxyImageUrl(
-                                item.image_url,
-                                'https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=500&q=80',
-                              ) ?? undefined
-                            }
-                            alt={item.recipe_name}
-                            className="h-20 w-20 rounded-lg object-cover"
-                          />
-                          <div className="min-w-0 flex-1">
-                            <p className="line-clamp-1 font-semibold text-slate-900">{item.recipe_name}</p>
-                            <p className="text-xs text-slate-500 mt-1">Your rating: ⭐ {item.rating}/5</p>
-                            <div className="mt-1">
-                              <StarRating rating={item.aggregated_rating} />
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => setSelectedRecipeId(item.recipe_id)}
-                            className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 transition-all duration-200 hover:border-amber-500 hover:bg-amber-50 hover:text-amber-700 active:scale-95"
-                          >
-                            View
-                          </button>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              ))}
-            </div>
-          ) : (
-            <ul className="grid grid-cols-1 gap-4">
-              {items.map((item, index) => {
-                const isRevealed = revealedIndexes.has(index)
-                return (
-                <li
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {folderGroup.bookmarks.map((item) => (
+                    <RecipeCard
+                      key={item.bookmark_id}
+                      recipe={convertToCardData(item)}
+                      variant="full"
+                      showMatchScore={false}
+                      onOpenRecipe={setSelectedRecipeId}
+                    />
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
+        )}
+
+        {/* Grid View */}
+        {!isLoading && items.length > 0 && !groupByFolder && (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {items.map((item, index) => {
+              const isRevealed = revealedIndexes.has(index)
+              return (
+                <div
                   key={item.bookmark_id}
                   ref={setElementRef(index)}
                   data-index={index}
-                  className={`group overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-900/10 ${
-                    isRevealed ? 'animate-fade-in' : 'scroll-reveal'
-                  }`}
-                  style={{ animationDelay: isRevealed ? `${index * 50}ms` : undefined }}
+                  className={isRevealed ? 'card-enter' : 'scroll-reveal'}
                 >
-                  <div className="flex gap-4">
-                    <img
-                      src={
-                        toProxyImageUrl(
-                          item.image_url,
-                          'https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=500&q=80',
-                        ) ?? undefined
-                      }
-                      alt={item.recipe_name}
-                      className="h-28 w-28 rounded-xl object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                    <div className="flex min-w-0 flex-1 flex-col gap-2">
-                      <h3 className="line-clamp-2 text-base font-semibold text-slate-900 group-hover:text-amber-700 transition-colors">
-                        {item.recipe_name}
-                      </h3>
-                      <div className="flex items-center gap-2">
-                        <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
-                          📁 {item.folder_name}
-                        </span>
-                      </div>
-                      <div className="mt-auto">
-                        <p className="text-xs text-slate-500">Your rating: ⭐ {item.rating}/5</p>
-                      </div>
+                  <RecipeCard
+                    recipe={convertToCardData(item)}
+                    variant="full"
+                    showMatchScore={false}
+                    onOpenRecipe={setSelectedRecipeId}
+                  />
+                  <div className="mt-2 flex items-center justify-between px-1">
+                    <div className="flex items-center gap-1.5 text-xs text-stone-500">
+                      <span>📖</span>
+                      <span className="truncate max-w-[120px]">{item.folder_name}</span>
                     </div>
-                  </div>
-                  <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">Community Rating</p>
+                    <div className="flex items-center gap-1">
                       <StarRating rating={item.aggregated_rating} />
-                      <p className="text-xs text-slate-500 mt-1">{item.rating_count ?? 0} votes</p>
+                      <span className="text-xs text-stone-400">({item.rating_count ?? 0})</span>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedRecipeId(item.recipe_id)}
-                      className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:border-amber-500 hover:bg-amber-50 hover:text-amber-700 active:scale-95"
-                    >
-                      View Recipe
-                    </button>
                   </div>
-                </li>
-                )
-              })}
-            </ul>
-          )}
-        </section>
+                </div>
+              )
+            })}
+          </div>
+        )}
       </section>
 
       {selectedRecipeId !== null && (

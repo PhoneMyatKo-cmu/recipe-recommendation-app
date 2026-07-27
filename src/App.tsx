@@ -300,45 +300,82 @@ function App() {
   const navItems = [
     { path: '/', label: 'Home', icon: '🏠' },
     { path: '/search', label: 'Search', icon: '🔍' },
-    { path: '/folders', label: 'Cookbooks', icon: '📁' },
+    { path: '/folders', label: 'Cookbooks', icon: '📖' },
     { path: '/bookmarks', label: 'Bookmarks', icon: '🔖' },
     // { path: '/evaluate', label: 'Evaluate', icon: '📊' },
     { path: '/rag', label: 'Ask AI', icon: '🤖' },
   ]
 
   return (
-    <div className="min-h-screen">
-      <header className="sticky top-0 z-40 border-b border-white/60 bg-white/90 backdrop-blur-xl shadow-sm">
-        <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-2">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50/50 to-orange-50/30">
+      <header className="sticky top-0 z-50 border-b border-stone-200/60 bg-white/95 backdrop-blur-xl shadow-sm">
+        <nav className="mx-auto flex w-full max-w-7xl items-center gap-6 px-4 py-3">
+          {/* Logo */}
+          <div
+            className="flex items-center gap-2 cursor-pointer"
+            onClick={() => navigate('/')}
+          >
+            <div className="rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 p-2 shadow-lg shadow-orange-500/20">
+              <span className="text-xl">🍳</span>
+            </div>
+            <span className="hidden font-bold text-lg text-stone-900 sm:block">
+              RecipeFinder
+            </span>
+          </div>
+
+          {/* Navigation Links */}
+          <div className="flex items-center gap-1">
             {navItems.map((item) => (
               <button
                 key={item.path}
                 type="button"
                 onClick={() => navigate(item.path)}
-                className={`group relative rounded-full px-3 py-2 text-sm font-medium transition-all duration-200 ${
+                className={`relative rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ${
                   isActive(item.path)
-                    ? 'bg-emerald-100 text-emerald-800 shadow-sm'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                    ? 'text-orange-700 bg-orange-50'
+                    : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
                 }`}
               >
-                {/* <span className="mr-1.5">{item.icon}</span> */}
-                <span className="relative z-10">{item.label}</span>
-                {isActive(item.path) && (
-                  <span className="absolute bottom-0 left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-full bg-emerald-500" />
-                )}
+                <span className="hidden sm:inline">{item.icon}</span>
+                <span className="ml-1 sm:ml-2">{item.label}</span>
               </button>
             ))}
           </div>
+
+          {/* Search Bar - Desktop */}
+          <div className="hidden flex-1 md:block">
+            <div
+              className="flex cursor-pointer items-center gap-2 rounded-full border border-stone-300 bg-stone-50/80 px-4 py-2.5 transition-all hover:border-orange-300 hover:bg-orange-50/50"
+              onClick={() => navigate('/search')}
+            >
+              <span className="text-stone-400">🔍</span>
+              <span className="text-sm text-stone-500">Search recipes...</span>
+              <div className="ml-auto flex items-center gap-1 text-xs text-stone-400">
+                <kbd className="rounded border border-stone-300 px-1.5 py-0.5">⌘</kbd>
+                <kbd className="rounded border border-stone-300 px-1.5 py-0.5">K</kbd>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Actions */}
           <div className="flex items-center gap-3">
-            <span className="hidden rounded-full bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm sm:inline-flex">
+            {/* Mobile Search Button */}
+            <button
+              type="button"
+              onClick={() => navigate('/search')}
+              className="rounded-full p-2 text-stone-600 hover:bg-stone-100 md:hidden"
+            >
+              <span className="text-xl">🔍</span>
+            </button>
+
+            <span className="hidden rounded-full bg-gradient-to-br from-stone-100 to-stone-200 border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700 shadow-sm sm:inline-flex">
               {displayName}
             </span>
             <button
               type="button"
               onClick={handleLogout}
               disabled={isSubmitting}
-              className="rounded-full bg-gradient-to-br from-slate-800 to-slate-900 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-slate-900/20 transition-all duration-200 hover:from-slate-700 hover:to-slate-800 hover:shadow-xl hover:shadow-slate-900/30 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
+              className="rounded-full bg-gradient-to-br from-orange-500 to-red-500 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-orange-500/20 transition-all duration-200 hover:from-orange-600 hover:to-red-600 hover:shadow-xl hover:shadow-orange-500/30 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
             >
               Logout
             </button>

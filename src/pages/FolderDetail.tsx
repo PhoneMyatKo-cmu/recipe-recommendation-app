@@ -182,7 +182,7 @@ function FolderDetail({ token, folderId, onBack }: FolderDetailProps) {
             <header className="space-y-3 rounded-3xl border border-white/70 bg-gradient-to-br from-white/90 to-blue-50/30 p-6 shadow-lg shadow-slate-900/5 backdrop-blur-xl animate-fade-in">
               <div className="flex items-center gap-3">
                 <div className="rounded-full bg-blue-100 p-2">
-                  <span className="text-2xl">📁</span>
+                  <span className="text-2xl">📖</span>
                 </div>
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-600">Cookbook Detail</p>
               </div>

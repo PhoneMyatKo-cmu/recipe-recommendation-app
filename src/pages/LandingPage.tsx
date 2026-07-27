@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useRef } from 'react'
 import RecipeDetailModal from '../components/search/RecipeDetailModal'
-import { toProxyImageUrl } from '../utils/imageUrl'
+import RecipeCard, { type RecipeCardData } from '../components/shared/RecipeCard'
+import RecipeCardSkeleton from '../components/shared/RecipeCardSkeleton'
 
 type RecommendationItem = {
   recipe_id: number
@@ -14,37 +15,36 @@ type RecommendationResponse = {
   results: RecommendationItem[]
 }
 
-type FolderItem = {
-  folder_id: number
-  name: string
-}
-
 type LandingPageProps = {
   token: string | null
   bookmarkCount?: number | null
 }
 
 const API_BASE_URL = 'http://127.0.0.1:8000'
-const DEFAULT_TOP_K = 8
+const DEFAULT_TOP_K = 12 // Increased for horizontal carousels
 
 function LandingPage({ token, bookmarkCount = null }: LandingPageProps) {
-  const [folders, setFolders] = useState<FolderItem[]>([])
-  const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null)
   const [hasBookmarkedThisSession, setHasBookmarkedThisSession] = useState(false)
 
   const [popularRecs, setPopularRecs] = useState<RecommendationItem[]>([])
   const [allRecs, setAllRecs] = useState<RecommendationItem[]>([])
-  const [folderRecs, setFolderRecs] = useState<RecommendationItem[]>([])
   const [randomRecs, setRandomRecs] = useState<RecommendationItem[]>([])
 
   const [isLoadingPopular, setIsLoadingPopular] = useState(false)
   const [isLoadingAll, setIsLoadingAll] = useState(false)
-  const [isLoadingFolder, setIsLoadingFolder] = useState(false)
   const [isLoadingRandom, setIsLoadingRandom] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const [selectedRecipeId, setSelectedRecipeId] = useState<number | null>(null)
   const shouldShowPopular = bookmarkCount === 0 && !hasBookmarkedThisSession
+
+  // Get user greeting based on time of day
+  const getGreeting = () => {
+    const hour = new Date().getHours()
+    if (hour < 12) return 'Good morning'
+    if (hour < 17) return 'Good afternoon'
+    return 'Good evening'
+  }
 
   const getAuthHeaders = useCallback(
     (): HeadersInit => ({
@@ -61,24 +61,6 @@ function LandingPage({ token, bookmarkCount = null }: LandingPageProps) {
       return fallback
     }
   }
-
-  const loadFolders = useCallback(async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/folders`, {
-        headers: getAuthHeaders(),
-      })
-      if (!response.ok) {
-        throw new Error(await getErrorMessage(response, 'Failed to load cookbooks.'))
-      }
-      const data = (await response.json()) as FolderItem[]
-      setFolders(data)
-      setSelectedFolderId(data.length > 0 ? data[0].folder_id : null)
-    } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : 'Failed to load cookbooks.')
-      setFolders([])
-      setSelectedFolderId(null)
-    }
-  }, [getAuthHeaders])
 
   const loadAllRecommendations = useCallback(async () => {
     setIsLoadingAll(true)
@@ -127,29 +109,6 @@ function LandingPage({ token, bookmarkCount = null }: LandingPageProps) {
     }
   }, [getAuthHeaders])
 
-  const loadFolderRecommendations = useCallback(async (folderId: number) => {
-    setIsLoadingFolder(true)
-    setError(null)
-    try {
-      const response = await fetch(
-        `${API_BASE_URL}/recommendations/folder/${folderId}?top_k=${DEFAULT_TOP_K}&approach=tfidf`,
-        {
-          headers: getAuthHeaders(),
-        },
-      )
-      if (!response.ok) {
-        throw new Error(await getErrorMessage(response, 'Failed to load cookbook recommendations.'))
-      }
-      const data = (await response.json()) as RecommendationResponse
-      setFolderRecs(data.results ?? [])
-    } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : 'Failed to load cookbook recommendations.')
-      setFolderRecs([])
-    } finally {
-      setIsLoadingFolder(false)
-    }
-  }, [getAuthHeaders])
-
   const loadRandomRecommendations = useCallback(async () => {
     setIsLoadingRandom(true)
     setError(null)
@@ -179,10 +138,10 @@ function LandingPage({ token, bookmarkCount = null }: LandingPageProps) {
     }
 
     const init = async () => {
-      await Promise.all([loadFolders(), loadAllRecommendations(), loadRandomRecommendations()])
+      await Promise.all([loadAllRecommendations(), loadRandomRecommendations()])
     }
     init()
-  }, [token, loadAllRecommendations, loadFolders, loadRandomRecommendations])
+  }, [token, loadAllRecommendations, loadRandomRecommendations])
 
   useEffect(() => {
     if (!token) {
@@ -201,180 +160,194 @@ function LandingPage({ token, bookmarkCount = null }: LandingPageProps) {
     }
   }, [bookmarkCount])
 
-  useEffect(() => {
-    if (!token || selectedFolderId === null) {
-      setFolderRecs([])
-      return
-    }
-    loadFolderRecommendations(selectedFolderId)
-  }, [token, selectedFolderId, loadFolderRecommendations])
+  // Horizontal Carousel Component
+  const Carousel = ({
+    title,
+    items,
+    isLoading,
+    emptyMessage,
+    showMatchScore = false,
+    onRefresh,
+  }: {
+    title: string
+    items: RecommendationItem[]
+    isLoading: boolean
+    emptyMessage: string
+    showMatchScore?: boolean
+    onRefresh?: () => void
+  }) => {
+    const [scrollPosition, setScrollPosition] = useState(0)
+    const carouselRef = useRef<HTMLDivElement>(null)
 
-  const renderCards = (items: RecommendationItem[], loading: boolean, emptyMessage: string) => {
-    if (loading) {
-      return (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="animate-pulse">
-              <div className="h-44 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200" />
-              <div className="mt-3 space-y-2">
-                <div className="h-4 w-3/4 rounded-lg bg-slate-200" />
-                <div className="h-3 w-1/2 rounded-lg bg-slate-200" />
-              </div>
-            </div>
-          ))}
-        </div>
-      )
+    const scroll = (direction: 'left' | 'right') => {
+      if (carouselRef.current) {
+        const scrollAmount = 300
+        const newPosition =
+          direction === 'left'
+            ? scrollPosition - scrollAmount
+            : scrollPosition + scrollAmount
+        carouselRef.current.scrollTo({
+          left: newPosition,
+          behavior: 'smooth',
+        })
+        setScrollPosition(newPosition)
+      }
     }
-    if (items.length === 0) {
-      return (
-        <div className="flex flex-col items-center justify-center py-12">
-          <div className="rounded-full bg-slate-100 p-4">
-            <span className="text-4xl">🍽️</span>
-          </div>
-          <p className="mt-4 text-slate-600">{emptyMessage}</p>
-        </div>
-      )
-    }
+
+    const convertToRecipeCardData = (item: RecommendationItem): RecipeCardData => ({
+      recipe_id: item.recipe_id,
+      name: item.name,
+      image_url: item.image_url,
+      score: item.score,
+    })
 
     return (
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {items.map((item, index) => (
-          <article
-            key={item.recipe_id}
-            className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-900/10 animate-fade-in"
-            style={{ animationDelay: `${index * 50}ms` }}
-          >
-            <div className="relative overflow-hidden">
-              <img
-                src={
-                  toProxyImageUrl(
-                    item.image_url,
-                  'https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80'
-                  ) ?? undefined
-                }
-                alt={item.name}
-                className="h-44 w-full object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-            </div>
-            <div className="space-y-3 p-4">
-              <h3 className="line-clamp-2 text-sm font-semibold text-slate-900 group-hover:text-emerald-700 transition-colors">
-                {item.name}
-              </h3>
-              {/* <div className="flex items-center gap-2">
-                <span className="rounded-full bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-700">
-                  ★ {item.score.toFixed(3)}
-                </span>
-              </div> */}
+      <section className="space-y-4">
+        <div className="flex items-center justify-between px-1">
+          <h2 className="text-xl font-bold text-stone-900">{title}</h2>
+          <div className="flex items-center gap-2">
+            {onRefresh && (
               <button
                 type="button"
-                onClick={() => setSelectedRecipeId(item.recipe_id)}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs font-medium text-slate-700 transition-all duration-200 hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-700 active:scale-95"
+                onClick={onRefresh}
+                disabled={isLoading}
+                className="rounded-lg p-2 text-stone-500 hover:bg-stone-100 hover:text-stone-700 disabled:opacity-50"
               >
-                View Recipe
+                🔄
+              </button>
+            )}
+            <div className="flex gap-1">
+              <button
+                type="button"
+                onClick={() => scroll('left')}
+                className="rounded-full border border-stone-300 p-2 hover:bg-stone-100 disabled:opacity-30"
+                disabled={scrollPosition <= 0}
+              >
+                ←
+              </button>
+              <button
+                type="button"
+                onClick={() => scroll('right')}
+                className="rounded-full border border-stone-300 p-2 hover:bg-stone-100 disabled:opacity-30"
+              >
+                →
               </button>
             </div>
-          </article>
-        ))}
-      </div>
+          </div>
+        </div>
+
+        {isLoading ? (
+          <div className="flex gap-4 overflow-x-auto hide-scrollbar">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <RecipeCardSkeleton key={i} variant="compact" />
+            ))}
+          </div>
+        ) : items.length === 0 ? (
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-stone-200 bg-stone-50 py-12">
+            <span className="text-4xl">🍽️</span>
+            <p className="mt-3 text-stone-500">{emptyMessage}</p>
+          </div>
+        ) : (
+          <div
+            ref={carouselRef}
+            className="flex gap-4 overflow-x-auto hide-scrollbar snap-x-mandatory pb-4"
+            onScroll={(e) => setScrollPosition(e.currentTarget.scrollLeft)}
+          >
+            {items.map((item) => (
+              <RecipeCard
+                key={item.recipe_id}
+                recipe={convertToRecipeCardData(item)}
+                variant="compact"
+                showMatchScore={showMatchScore}
+                onOpenRecipe={setSelectedRecipeId}
+              />
+            ))}
+          </div>
+        )}
+      </section>
     )
   }
 
   return (
-    <main className="min-h-screen px-4 py-10">
-      <section className="mx-auto flex max-w-6xl flex-col gap-6">
-        <header className="space-y-2 rounded-3xl border border-white/70 bg-white/85 p-6 shadow-lg shadow-slate-900/5 backdrop-blur-xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-600">Recommendations</p>
-          <h1 className="text-4xl font-bold text-slate-900">Food Bookmarking & Recommendation</h1>
-          <p className="text-slate-600">Three recommendation categories based on your bookmarks and cookbooks.</p>
-        </header>
-
-        {error && (
-          <p className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700">
-            {error}
-          </p>
-        )}
-
-        {shouldShowPopular && (
-          <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5">
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-slate-900">Popular Right Now</h2>
-              <button
-                type="button"
-                onClick={loadPopularRecommendations}
-                className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-              >
-                Refresh
-              </button>
-            </div>
-            {renderCards(popularRecs, isLoadingPopular, 'No popular recommendations available.')}
-          </section>
-        )}
-
-        <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-slate-900">Based on Your Saved Recipes</h2>
-            <button
-              type="button"
-              onClick={loadAllRecommendations}
-              className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-            >
-              Refresh
-            </button>
-          </div>
-          {renderCards(allRecs, isLoadingAll, 'No recommendations from your bookmarks yet.')}
-        </section>
-
-        <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5">
-          <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <h2 className="text-xl font-semibold text-slate-900">Based on a Cookbook You Choose</h2>
-            <div className="flex items-end gap-2">
-              <div>
-                <label className="mb-1 block text-xs font-medium text-slate-600">Cookbook</label>
-                <select
-                  value={selectedFolderId ?? ''}
-                  onChange={(event) => setSelectedFolderId(Number(event.target.value))}
-                  className="h-10 min-w-52 rounded-lg border border-slate-300 bg-white px-3 text-slate-800"
-                  disabled={folders.length === 0}
-                >
-                  {folders.length === 0 && <option value="">No cookbook available</option>}
-                  {folders.map((folder) => (
-                    <option key={folder.folder_id} value={folder.folder_id}>
-                      {folder.name}
-                    </option>
-                  ))}
-                </select>
+    <main className="min-h-screen">
+      <div className="mx-auto max-w-7xl px-4 py-8">
+        {/* Hero Section */}
+        <section className="mb-10 overflow-hidden rounded-3xl bg-gradient-to-br from-orange-500 via-amber-500 to-red-500 p-8 text-white shadow-2xl shadow-orange-500/20 animate-fade-in">
+          <div className="relative z-10">
+            <p className="mb-2 text-lg font-medium opacity-90">
+              {getGreeting()}! Ready to cook something amazing?
+            </p>
+            <h1 className="mb-4 text-4xl font-bold sm:text-5xl">
+              Your Personal Recipe Collection
+            </h1>
+            <p className="max-w-2xl text-lg opacity-90">
+              Discover recipes tailored to your taste. Save your favorites and get personalized
+              recommendations every time you visit.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-4">
+              <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 backdrop-blur-sm">
+                <span className="text-xl">📖</span>
+                <span className="font-semibold">{bookmarkCount ?? 0} recipes saved</span>
               </div>
               <button
                 type="button"
-                onClick={() => {
-                  if (selectedFolderId !== null) {
-                    loadFolderRecommendations(selectedFolderId)
-                  }
-                }}
-                className="h-10 rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                onClick={() => window.location.href = '/search'}
+                className="rounded-full bg-white px-6 py-2.5 font-semibold text-orange-600 shadow-lg transition-all hover:scale-105 hover:shadow-xl"
               >
-                Refresh
+                Explore Recipes →
               </button>
             </div>
           </div>
-          {renderCards(folderRecs, isLoadingFolder, 'No recommendations for this cookbook yet.')}
+          {/* Background decoration */}
+          <div className="absolute right-0 top-0 h-full w-1/3 opacity-10">
+            <span className="text-[200px]">🍳</span>
+          </div>
         </section>
 
-        <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-slate-900">Discover Something New</h2>
-            <button
-              type="button"
-              onClick={loadRandomRecommendations}
-              className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-            >
-              Refresh
-            </button>
+        {error && (
+          <div className="mb-8 rounded-2xl border border-red-200 bg-red-50 p-5 shadow-md animate-fade-in">
+            <div className="flex items-start gap-3">
+              <span className="text-xl">⚠️</span>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-red-700">Error</p>
+                <p className="text-sm text-red-600 mt-1">{error}</p>
+              </div>
+            </div>
           </div>
-          {renderCards(randomRecs, isLoadingRandom, 'No random recommendations available.')}
-        </section>
-      </section>
+        )}
+
+        {/* Recommendation Carousels */}
+        <div className="space-y-8">
+          {shouldShowPopular && (
+            <Carousel
+              title="🔥 Trending This Week"
+              items={popularRecs}
+              isLoading={isLoadingPopular}
+              emptyMessage="No trending recipes available."
+              showMatchScore={false}
+              onRefresh={loadPopularRecommendations}
+            />
+          )}
+
+          <Carousel
+            title="✨ Picked For You"
+            items={allRecs}
+            isLoading={isLoadingAll}
+            emptyMessage="Start saving recipes to get personalized recommendations!"
+            showMatchScore={true}
+            onRefresh={loadAllRecommendations}
+          />
+
+          <Carousel
+            title="🎲 Discover Something New"
+            items={randomRecs}
+            isLoading={isLoadingRandom}
+            emptyMessage="No recipes available."
+            showMatchScore={false}
+            onRefresh={loadRandomRecommendations}
+          />
+        </div>
+      </div>
 
       {selectedRecipeId !== null && (
         <RecipeDetailModal

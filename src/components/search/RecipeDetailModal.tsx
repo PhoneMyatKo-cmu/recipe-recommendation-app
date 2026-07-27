@@ -334,7 +334,7 @@ function RecipeDetailModal({
               {allowBookmark && showBookmarkPanel && (
                 <section className="space-y-4 rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100 p-5 animate-scale-in">
                   <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
-                    <span>📁</span> Add Bookmark
+                    <span>📖</span> Add Bookmark
                   </h3>
 
                   {isLoadingFolders && (

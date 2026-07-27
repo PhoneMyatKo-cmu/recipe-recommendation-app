@@ -1,6 +1,18 @@
 @import "tailwindcss";
 
 :root {
+  /* Food App Color Palette */
+  --color-primary: 249 158 11;        /* amber-500 */
+  --color-primary-dark: 234 88 12;   /* orange-600 */
+  --color-accent: 239 68 68;         /* red-500 */
+  --color-accent-hover: 220 38 38;    /* red-600 */
+  --color-bg-cream: 254 252 232;      /* yellow-50 */
+  --color-bg-warm: 255 247 237;       /* orange-50 */
+  --color-text-main: 28 25 23;        /* stone-900 */
+  --color-text-muted: 115 108 101;    /* stone-500 */
+  --color-surface: 255 255 255;      /* white */
+  --color-border: 214 211 209;       /* stone-300 */
+
   font-family:
     "Inter",
     "Plus Jakarta Sans",
@@ -20,12 +32,12 @@
 
 body {
   margin: 0;
-  color: #0f172a;
+  color: rgb(var(--color-text-main));
   background:
-    radial-gradient(circle at 0% 0%, rgba(251, 191, 36, 0.15), transparent 50%),
-    radial-gradient(circle at 100% 20%, rgba(16, 185, 129, 0.12), transparent 40%),
-    radial-gradient(circle at 50% 100%, rgba(59, 130, 246, 0.08), transparent 45%),
-    linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    radial-gradient(circle at 0% 0%, rgba(249, 158, 11, 0.12), transparent 50%),
+    radial-gradient(circle at 100% 20%, rgba(234, 88, 12, 0.1), transparent 40%),
+    radial-gradient(circle at 50% 100%, rgba(251, 146, 60, 0.08), transparent 45%),
+    linear-gradient(135deg, rgb(var(--color-bg-cream)) 0%, rgb(var(--color-bg-warm)) 100%);
 }
 
 #root {
@@ -75,6 +87,47 @@ body {
   }
 }
 
+/* Heart burst animation for save button */
+@keyframes heartBurst {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.15);
+  }
+  50% {
+    transform: scale(1.25);
+  }
+  75% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Card entrance animation */
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Shimmer loading effect */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
 /* Scroll reveal animations */
 @keyframes scrollReveal {
   from {
@@ -87,6 +140,7 @@ body {
   }
 }
 
+/* Animation classes */
 .animate-fade-in {
   animation: fadeIn 0.4s ease-out;
 }
@@ -97,6 +151,25 @@ body {
 
 .animate-scale-in {
   animation: scaleIn 0.3s ease-out;
+}
+
+.card-enter {
+  animation: slideUpFade 0.4s ease-out backwards;
+}
+
+.heart-burst {
+  animation: heartBurst 0.4s ease-out;
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgb(var(--color-border)) 0%,
+    rgb(229 231 235) 50%,
+    rgb(var(--color-border)) 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
 }
 
 .scroll-reveal {
@@ -115,28 +188,71 @@ button, input, select, a {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Enhanced focus states */
+/* Enhanced focus states with food app colors */
 input:focus, select:focus, textarea:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1), 0 0 0 1px rgba(16, 185, 129, 0.5);
+  box-shadow: 0 0 0 3px rgba(249, 158, 11, 0.15), 0 0 0 1px rgba(249, 158, 11, 0.6);
 }
 
-/* Custom scrollbar */
+input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(249, 158, 11, 0.15), 0 0 0 1px rgba(249, 158, 11, 0.6);
+}
+
+/* Custom scrollbar - warm themed */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(28, 25, 23, 0.05);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(28, 25, 23, 0.2);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(28, 25, 23, 0.3);
+}
+
+/* Hide scrollbar for horizontal scrolling elements */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Horizontal scroll snap */
+.snap-x-mandatory {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.snap-start {
+  scroll-snap-align: start;
+}
+
+/* Food app specific utilities */
+.food-gradient {
+  background: linear-gradient(135deg, rgb(251 146 60) 0%, rgb(234 88 12) 100%);
+}
+
+.warm-shadow {
+  box-shadow: 0 4px 20px rgba(234, 88, 12, 0.15);
+}
+
+.card-hover {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(234, 88, 12, 0.2);
 }

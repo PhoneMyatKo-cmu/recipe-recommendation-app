@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import type { RecipeResult } from '../components/search/RecipeCard'
+import type { RecipeCardData } from '../components/shared/RecipeCard'
 import RecipeDetailModal from '../components/search/RecipeDetailModal'
-import RecipeResults from '../components/search/RecipeResults'
+import RecipeCard from '../components/shared/RecipeCard'
+import RecipeCardSkeleton from '../components/shared/RecipeCardSkeleton'
 import SearchBar from '../components/search/SearchBar'
 
 type SearchApiResponse = {
@@ -10,6 +11,16 @@ type SearchApiResponse = {
   corrected_query: string | null
   spell_corrected: boolean
   results: RecipeResult[]
+}
+
+type RecipeResult = {
+  recipe_id: number
+  name: string
+  image_url: string | null
+  score: number
+  rating?: number
+  cook_time?: number
+  prep_time?: number
 }
 
 const API_BASE_URL = 'http://127.0.0.1:8000'
@@ -24,7 +35,6 @@ function SearchPage({ token }: SearchPageProps) {
   const [submittedQuery, setSubmittedQuery] = useState('')
   const [selectedRecipeId, setSelectedRecipeId] = useState<number | null>(null)
   const [results, setResults] = useState<RecipeResult[]>([])
-  const [normalizedQuery, setNormalizedQuery] = useState('')
   const [correctedQuery, setCorrectedQuery] = useState<string | null>(null)
   const [spellCorrected, setSpellCorrected] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -64,21 +74,19 @@ function SearchPage({ token }: SearchPageProps) {
             message = data.detail
           }
         } catch {
-          // Ignore JSON parse errors and keep fallback message.
+          // Keep fallback message.
         }
         throw new Error(message)
       }
 
       const data = (await response.json()) as SearchApiResponse
       setResults(data.results ?? [])
-      setNormalizedQuery(data.normalized_query ?? '')
       setCorrectedQuery(data.corrected_query ?? null)
       setSpellCorrected(Boolean(data.spell_corrected))
     } catch (requestError) {
       const message =
         requestError instanceof Error ? requestError.message : 'Unexpected error while searching.'
       setResults([])
-      setNormalizedQuery('')
       setCorrectedQuery(null)
       setSpellCorrected(false)
       setError(message)
@@ -87,25 +95,37 @@ function SearchPage({ token }: SearchPageProps) {
     }
   }
 
+  const convertToCardData = (item: RecipeResult): RecipeCardData => ({
+    recipe_id: item.recipe_id,
+    name: item.name,
+    image_url: item.image_url,
+    score: item.score,
+    rating: item.rating,
+    cook_time: item.cook_time,
+    prep_time: item.prep_time,
+  })
+
   return (
-    <main className="min-h-screen px-4 py-10 text-left">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
-        <header className="space-y-3 rounded-3xl border border-white/70 bg-gradient-to-br from-white/90 to-white/80 p-8 shadow-lg shadow-slate-900/5 backdrop-blur-xl animate-fade-in">
+    <main className="min-h-screen bg-gradient-to-br from-amber-50/50 to-orange-50/30">
+      <div className="mx-auto max-w-7xl px-4 py-8">
+        {/* Hero Header */}
+        <header className="mb-8 space-y-4 rounded-3xl bg-gradient-to-br from-orange-500 to-red-500 p-8 text-white shadow-xl shadow-orange-500/20 animate-fade-in">
           <div className="flex items-center gap-3">
-            {/* <div className="rounded-full bg-emerald-100 p-2">
-              <span className="text-2xl">🔍</span>
-            </div> */}
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-600">Recipe Search</p>
+            <span className="text-3xl">🔍</span>
+            <p className="text-sm font-semibold uppercase tracking-wider opacity-90">
+              Recipe Search
+            </p>
           </div>
-          <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+          <h1 className="text-4xl font-bold sm:text-5xl">
             Find your next meal idea
           </h1>
-          <p className="max-w-2xl text-sm text-slate-600">
+          <p className="max-w-2xl text-lg opacity-90">
             Search through thousands of recipes with smart filtering and ranking
           </p>
         </header>
 
-        <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-lg shadow-slate-900/5 backdrop-blur-xl">
+        {/* Search Bar Section */}
+        <section className="mb-8 rounded-2xl border border-stone-200 bg-white/90 p-6 shadow-lg backdrop-blur-xl">
           <SearchBar
             value={queryInput}
             onChange={setQueryInput}
@@ -114,20 +134,22 @@ function SearchPage({ token }: SearchPageProps) {
           />
         </section>
 
-        {submittedQuery && (
-          <section className="rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50 p-5 text-sm text-slate-700 shadow-md animate-slide-in">
+        {/* Search Results Info */}
+        {submittedQuery && !isLoading && (
+          <section className="mb-6 space-y-3 rounded-2xl border border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50 p-5 shadow-md animate-slide-in">
             <div className="flex items-center gap-2">
-              {/* <span className="text-lg">🎯</span> */}
-              <p>
-                Showing results for:{' '}
-                <span className="font-bold text-slate-900">"{submittedQuery}"</span>
+              <span className="text-lg">🎯</span>
+              <p className="text-stone-700">
+                <span className="font-semibold text-stone-900">{results.length} recipes</span>{' '}
+                found for{' '}
+                <span className="font-semibold text-orange-700">"{submittedQuery}"</span>
               </p>
             </div>
             {spellCorrected && correctedQuery && (
-              <div className="mt-3 border-t border-emerald-200/50 pt-3">
+              <div className="border-t border-orange-200/50 pt-3">
                 <div className="flex items-center gap-2">
                   <span>💡</span>
-                  <p>
+                  <p className="text-stone-600">
                     Did you mean:{' '}
                     <button
                       type="button"
@@ -135,7 +157,7 @@ function SearchPage({ token }: SearchPageProps) {
                         setQueryInput(correctedQuery)
                         handleSubmit(correctedQuery)
                       }}
-                      className="font-semibold text-amber-700 underline decoration-amber-700/30 underline-offset-4 hover:text-amber-800 hover:decoration-amber-800/50 transition-all"
+                      className="font-semibold text-orange-700 underline decoration-orange-700/30 underline-offset-4 hover:text-orange-800 hover:decoration-orange-800/50 transition-all"
                     >
                       "{correctedQuery}"
                     </button>
@@ -143,17 +165,12 @@ function SearchPage({ token }: SearchPageProps) {
                 </div>
               </div>
             )}
-            {/* {normalizedQuery && (
-              <div className="mt-2 flex items-center gap-2 text-xs text-slate-500">
-                <span>⚙️</span>
-                <p>Normalized: {normalizedQuery}</p>
-              </div>
-            )} */}
           </section>
         )}
 
+        {/* Error Display */}
         {error && (
-          <div className="rounded-3xl border border-red-200 bg-red-50 p-5 shadow-md animate-fade-in">
+          <div className="mb-8 rounded-2xl border border-red-200 bg-red-50 p-5 shadow-md animate-fade-in">
             <div className="flex items-start gap-3">
               <span className="text-xl">⚠️</span>
               <div className="flex-1">
@@ -164,12 +181,59 @@ function SearchPage({ token }: SearchPageProps) {
           </div>
         )}
 
-        <RecipeResults
-          recipes={results}
-          hasSearched={submittedQuery.length > 0}
-          isLoading={isLoading}
-          onOpenRecipe={setSelectedRecipeId}
-        />
+        {/* Loading State */}
+        {isLoading && (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <RecipeCardSkeleton key={i} variant="full" />
+            ))}
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!isLoading && !submittedQuery && (
+          <div className="flex flex-col items-center justify-center rounded-3xl border border-stone-200 bg-white/80 py-16 text-center">
+            <div className="rounded-full bg-orange-100 p-6">
+              <span className="text-6xl">🍳</span>
+            </div>
+            <h3 className="mt-4 text-xl font-semibold text-stone-900">
+              Start your culinary adventure
+            </h3>
+            <p className="mt-2 text-stone-500">
+              Enter ingredients, dish names, or cuisines to discover recipes
+            </p>
+          </div>
+        )}
+
+        {/* Results Grid */}
+        {!isLoading && submittedQuery && results.length === 0 && (
+          <div className="flex flex-col items-center justify-center rounded-3xl border border-stone-200 bg-white/80 py-16">
+            <div className="rounded-full bg-stone-100 p-6">
+              <span className="text-6xl">🔍</span>
+            </div>
+            <h3 className="mt-4 text-xl font-semibold text-stone-900">
+              No recipes found
+            </h3>
+            <p className="mt-2 text-stone-500">
+              Try different keywords or check your spelling
+            </p>
+          </div>
+        )}
+
+        {/* Recipe Results */}
+        {!isLoading && results.length > 0 && (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {results.map((recipe) => (
+              <RecipeCard
+                key={recipe.recipe_id}
+                recipe={convertToCardData(recipe)}
+                variant="full"
+                showMatchScore={true}
+                onOpenRecipe={setSelectedRecipeId}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {selectedRecipeId !== null && (

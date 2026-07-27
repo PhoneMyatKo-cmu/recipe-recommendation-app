@@ -54,12 +54,12 @@ function Folder({ token, onOpenFolder }: FolderPageProps) {
         headers: getAuthHeaders(),
       })
       if (!response.ok) {
-        throw new Error(await getErrorMessage(response, 'Failed to load folders.'))
+        throw new Error(await getErrorMessage(response, 'Failed to load cookbooks.'))
       }
       const data = (await response.json()) as FolderResponse[]
       setFolders(data)
     } catch (error) {
-      setFolderError(error instanceof Error ? error.message : 'Failed to load folders.')
+      setFolderError(error instanceof Error ? error.message : 'Failed to load cookbooks.')
       setFolders([])
     } finally {
       setIsLoadingFolders(false)
@@ -76,7 +76,7 @@ function Folder({ token, onOpenFolder }: FolderPageProps) {
   const handleCreateFolder = async () => {
     const name = newFolderName.trim()
     if (!name) {
-      setFolderError('Folder name is required.')
+      setFolderError('Cookbook name is required.')
       return
     }
 
@@ -89,13 +89,13 @@ function Folder({ token, onOpenFolder }: FolderPageProps) {
         body: JSON.stringify({ name }),
       })
       if (!response.ok) {
-        throw new Error(await getErrorMessage(response, 'Failed to create folder.'))
+        throw new Error(await getErrorMessage(response, 'Failed to create cookbook.'))
       }
 
       setNewFolderName('')
       await loadFolders()
     } catch (error) {
-      setFolderError(error instanceof Error ? error.message : 'Failed to create folder.')
+      setFolderError(error instanceof Error ? error.message : 'Failed to create cookbook.')
     } finally {
       setIsCreating(false)
     }
@@ -109,7 +109,7 @@ function Folder({ token, onOpenFolder }: FolderPageProps) {
   const handleRenameFolder = async (folderId: number) => {
     const name = editingName.trim()
     if (!name) {
-      setFolderError('Folder name is required.')
+      setFolderError('Cookbook name is required.')
       return
     }
 
@@ -122,14 +122,14 @@ function Folder({ token, onOpenFolder }: FolderPageProps) {
         body: JSON.stringify({ name }),
       })
       if (!response.ok) {
-        throw new Error(await getErrorMessage(response, 'Failed to update folder name.'))
+        throw new Error(await getErrorMessage(response, 'Failed to update cookbook name.'))
       }
 
       setEditingFolderId(null)
       setEditingName('')
       await loadFolders()
     } catch (error) {
-      setFolderError(error instanceof Error ? error.message : 'Failed to update folder.')
+      setFolderError(error instanceof Error ? error.message : 'Failed to update cookbook.')
     } finally {
       setIsUpdating(false)
     }
@@ -144,44 +144,52 @@ function Folder({ token, onOpenFolder }: FolderPageProps) {
         headers: getAuthHeaders(),
       })
       if (!response.ok) {
-        throw new Error(await getErrorMessage(response, 'Failed to delete folder.'))
+        throw new Error(await getErrorMessage(response, 'Failed to delete cookbook.'))
       }
       await loadFolders()
     } catch (error) {
-      setFolderError(error instanceof Error ? error.message : 'Failed to delete folder.')
+      setFolderError(error instanceof Error ? error.message : 'Failed to delete cookbook.')
     } finally {
       setDeletingFolderId(null)
     }
   }
 
   return (
-    <main className="min-h-screen px-4 py-10">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
-        <header className="space-y-3 rounded-3xl border border-white/70 bg-gradient-to-br from-white/90 to-blue-50/30 p-6 shadow-lg shadow-slate-900/5 backdrop-blur-xl animate-fade-in">
+    <main className="min-h-screen bg-gradient-to-br from-amber-50/50 to-orange-50/30">
+      <div className="mx-auto max-w-7xl px-4 py-8">
+        {/* Header */}
+        <header className="mb-8 space-y-4 rounded-3xl bg-gradient-to-br from-orange-500 to-red-500 p-8 text-white shadow-xl shadow-orange-500/20 animate-fade-in">
           <div className="flex items-center gap-3">
-            <div className="rounded-full bg-blue-100 p-2">
-              <span className="text-2xl">📁</span>
-            </div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-600">Cookbooks</p>
+            <span className="text-3xl">📖</span>
+            <p className="text-sm font-semibold uppercase tracking-wider opacity-90">
+              My Cookbooks
+            </p>
           </div>
-          <h1 className="text-4xl font-bold tracking-tight text-slate-900">Manage your Cookbooks</h1>
-          <p className="text-slate-600">Create Cookbooks and organize your recipe bookmarks.</p>
+          <h1 className="text-4xl font-bold sm:text-5xl">
+            Your Recipe Collections
+          </h1>
+          <p className="max-w-2xl text-lg opacity-90">
+            Organize your favorite recipes into cookbooks. Create collections for different
+            cuisines, occasions, or dietary preferences.
+          </p>
         </header>
 
-        <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5">
+        {/* Create Cookbook Section */}
+        <section className="mb-8 rounded-2xl border border-stone-200 bg-white/90 p-6 shadow-lg backdrop-blur-xl">
+          <h2 className="mb-4 text-lg font-semibold text-stone-900">Create New Cookbook</h2>
           <div className="flex flex-col gap-3 sm:flex-row">
             <input
               type="text"
               value={newFolderName}
               onChange={(event) => setNewFolderName(event.target.value)}
               placeholder="Enter cookbook name..."
-              className="h-11 flex-1 rounded-xl border border-slate-300 bg-white px-4 text-slate-800 shadow-sm transition-all duration-200 hover:border-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20"
+              className="flex-1 rounded-xl border border-stone-300 bg-white px-4 py-3 text-stone-800 shadow-sm transition-all duration-200 hover:border-orange-400 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20"
             />
             <button
               type="button"
               onClick={handleCreateFolder}
               disabled={isCreating}
-              className="h-11 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 px-5 text-sm font-semibold text-white shadow-lg shadow-blue-900/20 transition-all duration-200 hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl hover:shadow-blue-900/30 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
+              className="rounded-xl bg-gradient-to-br from-orange-500 to-red-500 px-6 py-3 font-semibold text-white shadow-lg shadow-orange-500/20 transition-all duration-200 hover:from-orange-600 hover:to-red-600 hover:shadow-xl hover:shadow-orange-500/30 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isCreating ? (
                 <span className="flex items-center gap-2">
@@ -197,8 +205,9 @@ function Folder({ token, onOpenFolder }: FolderPageProps) {
           </div>
         </section>
 
+        {/* Error Display */}
         {folderError && (
-          <div className="rounded-3xl border border-red-200 bg-red-50 p-5 shadow-md animate-fade-in">
+          <div className="mb-8 rounded-2xl border border-red-200 bg-red-50 p-5 shadow-md animate-fade-in">
             <div className="flex items-start gap-3">
               <span className="text-xl">⚠️</span>
               <div className="flex-1">
@@ -209,80 +218,92 @@ function Folder({ token, onOpenFolder }: FolderPageProps) {
           </div>
         )}
 
-        <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5">
-          <h2 className="mb-5 text-xl font-semibold text-slate-900 flex items-center gap-2">
-            Your Cookbooks
-          </h2>
+        {/* Cookbooks Grid */}
+        <section className="rounded-2xl border border-stone-200 bg-white/90 p-6 shadow-lg backdrop-blur-xl">
+          <h2 className="mb-6 text-xl font-bold text-stone-900">Your Cookbooks</h2>
 
           {isLoadingFolders ? (
             <div className="flex flex-col items-center justify-center py-12">
-              <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
-              <p className="mt-4 text-slate-600">Loading cookbooks...</p>
+              <div className="h-12 w-12 animate-spin rounded-full border-4 border-stone-200 border-t-orange-500" />
+              <p className="mt-4 text-stone-600">Loading cookbooks...</p>
             </div>
           ) : folders.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12">
-              <div className="rounded-full bg-slate-100 p-4">
-                <span className="text-4xl">📁</span>
+            <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-stone-300 py-16">
+              <div className="rounded-full bg-orange-100 p-6">
+                <span className="text-5xl">📖</span>
               </div>
-              <p className="mt-4 text-slate-600">No Cookbooks yet.</p>
-              <p className="mt-2 text-sm text-slate-500">Create your first Cookbooks to start organizing recipes!</p>
+              <h3 className="mt-4 text-xl font-semibold text-stone-900">
+                No Cookbooks Yet
+              </h3>
+              <p className="mt-2 text-stone-500">
+                Create your first cookbook to start organizing recipes!
+              </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {folders.map((folder, index) => {
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {folders.map((folder) => {
                 const isEditing = editingFolderId === folder.folder_id
                 const isDeleting = deletingFolderId === folder.folder_id
 
                 return (
                   <article
                     key={folder.folder_id}
-                    className="group overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-900/10 animate-fade-in"
-                    style={{ animationDelay: `${index * 50}ms` }}
+                    className="group relative overflow-hidden rounded-2xl border border-stone-200 bg-gradient-to-br from-orange-50 to-amber-50 p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-orange-500/10"
                   >
-                    <div className="flex flex-col gap-4">
-                      <div className="flex items-start gap-3">
-                        <div className="rounded-xl bg-gradient-to-br from-blue-100 to-indigo-100 p-3">
-                          <span className="text-2xl">📁</span>
+                    {/* Background Icon */}
+                    <div className="absolute -right-4 -bottom-4 text-9xl opacity-5 transition-transform group-hover:scale-110">
+                      📖
+                    </div>
+
+                    <div className="relative z-10 flex flex-col gap-4">
+                      {/* Icon */}
+                      <div className="flex items-start justify-between">
+                        <div className="rounded-xl bg-gradient-to-br from-orange-500 to-red-500 p-3 shadow-lg shadow-orange-500/20">
+                          <span className="text-2xl">📖</span>
                         </div>
-                        <div className="min-w-0 flex-1">
-                          {isEditing ? (
-                            <input
-                              type="text"
-                              value={editingName}
-                              onChange={(event) => setEditingName(event.target.value)}
-                              className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-slate-800 shadow-sm transition-all duration-200 hover:border-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20"
-                              autoFocus
-                            />
-                          ) : (
-                            <h3 className="text-lg font-semibold text-slate-900 truncate group-hover:text-blue-700 transition-colors">
-                              {folder.name}
-                            </h3>
-                          )}
-                          <p className="mt-1 flex items-center gap-1 text-xs text-slate-500">
-                            {/* <span>📅</span> */}
-                            {new Date(folder.created_at).toLocaleDateString()}
-                          </p>
+                        <div className="flex gap-1">
+                          <button
+                            type="button"
+                            onClick={() => onOpenFolder(folder.folder_id)}
+                            className="rounded-lg p-2 text-stone-400 hover:bg-white hover:text-orange-600 transition-colors"
+                            title="Open cookbook"
+                          >
+                            <span className="text-lg">→</span>
+                          </button>
                         </div>
                       </div>
 
-                      <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-100">
-                        <button
-                          type="button"
-                          onClick={() => onOpenFolder(folder.folder_id)}
-                          className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:border-blue-500 hover:bg-blue-50 hover:text-blue-700 active:scale-95"
-                        >
-                          Open
-                        </button>
+                      {/* Name */}
+                      <div className="min-w-0">
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            value={editingName}
+                            onChange={(event) => setEditingName(event.target.value)}
+                            className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-stone-800 shadow-sm transition-all duration-200 hover:border-orange-400 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20"
+                            autoFocus
+                          />
+                        ) : (
+                          <h3 className="line-clamp-2 text-lg font-bold text-stone-900 group-hover:text-orange-700 transition-colors">
+                            {folder.name}
+                          </h3>
+                        )}
+                        <p className="mt-1 flex items-center gap-1 text-xs text-stone-500">
+                          📅 {new Date(folder.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
 
+                      {/* Actions */}
+                      <div className="flex gap-2 pt-2 border-t border-stone-200/50">
                         {isEditing ? (
                           <>
                             <button
                               type="button"
                               onClick={() => handleRenameFolder(folder.folder_id)}
                               disabled={isUpdating}
-                              className="rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 px-3 py-2 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:from-amber-600 hover:to-orange-600 hover:shadow-lg active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
+                              className="flex-1 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 px-3 py-2 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:from-amber-600 hover:to-orange-600 hover:shadow-lg active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
                             >
-                              {isUpdating ? 'Saving...' : 'Save'}
+                              {isUpdating ? '...' : 'Save'}
                             </button>
                             <button
                               type="button"
@@ -290,29 +311,30 @@ function Folder({ token, onOpenFolder }: FolderPageProps) {
                                 setEditingFolderId(null)
                                 setEditingName('')
                               }}
-                              className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-slate-50 active:scale-95"
+                              className="rounded-lg border border-stone-300 px-3 py-2 text-sm font-medium text-stone-600 transition-all duration-200 hover:bg-stone-50 active:scale-95"
                             >
                               Cancel
                             </button>
                           </>
                         ) : (
-                          <button
-                            type="button"
-                            onClick={() => startRename(folder)}
-                            className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-slate-50 active:scale-95"
-                          >
-                            Rename
-                          </button>
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => startRename(folder)}
+                              className="rounded-lg border border-stone-300 px-3 py-2 text-sm font-medium text-stone-600 transition-all duration-200 hover:bg-stone-50 active:scale-95"
+                            >
+                              Rename
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteFolder(folder.folder_id)}
+                              disabled={isDeleting}
+                              className="rounded-lg border border-red-300 px-3 py-2 text-sm font-medium text-red-600 transition-all duration-200 hover:bg-red-50 hover:border-red-400 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
+                            >
+                              {isDeleting ? '...' : 'Delete'}
+                            </button>
+                          </>
                         )}
-
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteFolder(folder.folder_id)}
-                          disabled={isDeleting}
-                          className="rounded-lg border border-red-300 px-3 py-2 text-sm font-medium text-red-700 transition-all duration-200 hover:bg-red-50 hover:border-red-400 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
-                        >
-                          {isDeleting ? 'Deleting...' : ' Delete'}
-                        </button>
                       </div>
                     </div>
                   </article>
