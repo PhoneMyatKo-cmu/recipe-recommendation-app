@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import RecipeDetailModal from '../components/search/RecipeDetailModal'
 import RecipeCard, { type RecipeCardData } from '../components/shared/RecipeCard'
 import RecipeCardSkeleton from '../components/shared/RecipeCardSkeleton'
+import { BookOpenIcon } from '../components/shared/icons'
 
 // Custom hook for scroll reveal animation
 function useScrollReveal(itemCount: number) {
@@ -197,12 +198,9 @@ function AllBookmarks({ token, userId }: AllBookmarksProps) {
       <section className="mx-auto max-w-7xl px-4 py-8">
         {/* Header */}
         <header className="mb-8 space-y-4 rounded-3xl bg-gradient-to-br from-orange-500 to-red-500 p-8 text-white shadow-xl shadow-orange-500/20 animate-fade-in">
-          <div className="flex items-center gap-3">
-            <span className="text-3xl">🔖</span>
-            <p className="text-sm font-semibold uppercase tracking-wider opacity-90">
-              My Bookmarks
-            </p>
-          </div>
+          <p className="text-sm font-semibold uppercase tracking-wider opacity-90">
+            My Bookmarks
+          </p>
           <h1 className="text-4xl font-bold sm:text-5xl">
             Your Saved Recipes
           </h1>
@@ -211,7 +209,6 @@ function AllBookmarks({ token, userId }: AllBookmarksProps) {
           </p>
           <div className="mt-4 flex items-center gap-4">
             <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 backdrop-blur-sm">
-              <span className="text-xl">📖</span>
               <span className="font-semibold">{items.length} recipes</span>
             </div>
           </div>
@@ -220,13 +217,8 @@ function AllBookmarks({ token, userId }: AllBookmarksProps) {
         {/* Error Display */}
         {error && (
           <div className="mb-8 rounded-2xl border border-red-200 bg-red-50 p-5 shadow-md animate-fade-in">
-            <div className="flex items-start gap-3">
-              <span className="text-xl">⚠️</span>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-red-700">Error</p>
-                <p className="text-sm text-red-600 mt-1">{error}</p>
-              </div>
-            </div>
+            <p className="text-sm font-semibold text-red-700">Error</p>
+            <p className="text-sm text-red-600 mt-1">{error}</p>
           </div>
         )}
 
@@ -246,7 +238,7 @@ function AllBookmarks({ token, userId }: AllBookmarksProps) {
                     : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
                 }`}
               >
-                {groupByFolder ? '📖 Grouped by Cookbook' : '📖 Group by Cookbook'}
+                {groupByFolder ? 'Grouped by Cookbook' : 'Group by Cookbook'}
               </button>
               <button
                 type="button"
@@ -254,7 +246,7 @@ function AllBookmarks({ token, userId }: AllBookmarksProps) {
                 disabled={isLoading}
                 className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-600 transition-all hover:bg-stone-50 disabled:opacity-50"
               >
-                🔄 Refresh
+                Refresh
               </button>
             </div>
           </div>
@@ -272,10 +264,7 @@ function AllBookmarks({ token, userId }: AllBookmarksProps) {
         {/* Empty State */}
         {!isLoading && items.length === 0 && (
           <div className="flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-stone-300 bg-white/50 py-16">
-            <div className="rounded-full bg-orange-100 p-6">
-              <span className="text-5xl">🔖</span>
-            </div>
-            <h3 className="mt-4 text-xl font-semibold text-stone-900">
+            <h3 className="text-xl font-semibold text-stone-900">
               No Bookmarks Yet
             </h3>
             <p className="mt-2 text-stone-500">
@@ -294,13 +283,13 @@ function AllBookmarks({ token, userId }: AllBookmarksProps) {
               >
                 <div className="mb-6 flex items-center justify-between border-b border-stone-200 pb-4">
                   <div className="flex items-center gap-3">
-                    <div className="rounded-xl bg-gradient-to-br from-orange-500 to-red-500 p-3 shadow-lg shadow-orange-500/20">
-                      <span className="text-2xl">📖</span>
+                    <div className="rounded-xl bg-gradient-to-br from-orange-500 to-red-500 p-3 text-white shadow-lg shadow-orange-500/20">
+                      <BookOpenIcon className="h-5 w-5" />
                     </div>
                     <div>
                       <h3 className="text-xl font-bold text-stone-900">{folderGroup.folder_name}</h3>
                       <p className="text-sm text-stone-600">
-                        ⭐ {folderGroup.average_user_rating.toFixed(2)} avg rating • {folderGroup.bookmarks.length} recipes
+                        {folderGroup.average_user_rating.toFixed(2)} avg rating • {folderGroup.bookmarks.length} recipes
                       </p>
                     </div>
                   </div>
@@ -342,7 +331,6 @@ function AllBookmarks({ token, userId }: AllBookmarksProps) {
                   />
                   <div className="mt-2 flex items-center justify-between px-1">
                     <div className="flex items-center gap-1.5 text-xs text-stone-500">
-                      <span>📖</span>
                       <span className="truncate max-w-[120px]">{item.folder_name}</span>
                     </div>
                     <div className="flex items-center gap-1">

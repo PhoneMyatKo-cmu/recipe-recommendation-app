@@ -35,10 +35,10 @@ function AuthPage({ mode, isSubmitting, error, message, onSubmit, onSwitchMode }
 
       <section className="relative w-full max-w-md rounded-3xl border border-white/70 bg-white/90 p-8 shadow-2xl shadow-slate-900/10 backdrop-blur-xl animate-scale-in">
         <div className="text-center">
-          <div className="mb-4 inline-flex items-center justify-center rounded-full bg-gradient-to-br from-emerald-100 to-amber-100 p-3">
-            <span className="text-3xl">🍽️</span>
+          <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-base font-bold text-white shadow-sm">
+            RF
           </div>
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-600">Food Bookmark App</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-600">RecipeFinder</p>
           <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-900">{title}</h1>
           <p className="mt-2 text-sm text-slate-600">{subtitle}</p>
         </div>
@@ -96,18 +96,12 @@ function AuthPage({ mode, isSubmitting, error, message, onSubmit, onSwitchMode }
 
         {message && (
           <div className="mt-6 rounded-xl border border-green-200 bg-green-50 px-4 py-3 animate-fade-in">
-            <p className="text-sm font-medium text-green-700 flex items-center gap-2">
-              <span>✅</span>
-              {message}
-            </p>
+            <p className="text-sm font-medium text-green-700">{message}</p>
           </div>
         )}
         {error && (
           <div className="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 animate-fade-in">
-            <p className="text-sm font-medium text-red-700 flex items-center gap-2">
-              <span>⚠️</span>
-              {error}
-            </p>
+            <p className="text-sm font-medium text-red-700">{error}</p>
           </div>
         )}
       </section>

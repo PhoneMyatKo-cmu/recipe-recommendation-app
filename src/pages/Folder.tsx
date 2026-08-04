@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { BookOpenIcon, ChevronRightIcon } from '../components/shared/icons'
 
 type FolderResponse = {
   folder_id: number
@@ -159,12 +160,9 @@ function Folder({ token, onOpenFolder }: FolderPageProps) {
       <div className="mx-auto max-w-7xl px-4 py-8">
         {/* Header */}
         <header className="mb-8 space-y-4 rounded-3xl bg-gradient-to-br from-orange-500 to-red-500 p-8 text-white shadow-xl shadow-orange-500/20 animate-fade-in">
-          <div className="flex items-center gap-3">
-            <span className="text-3xl">📖</span>
-            <p className="text-sm font-semibold uppercase tracking-wider opacity-90">
-              My Cookbooks
-            </p>
-          </div>
+          <p className="text-sm font-semibold uppercase tracking-wider opacity-90">
+            My Cookbooks
+          </p>
           <h1 className="text-4xl font-bold sm:text-5xl">
             Your Recipe Collections
           </h1>
@@ -197,9 +195,7 @@ function Folder({ token, onOpenFolder }: FolderPageProps) {
                   Creating...
                 </span>
               ) : (
-                <span className="flex items-center gap-2">
-                  <span>+</span> Create Cookbook
-                </span>
+                'Create Cookbook'
               )}
             </button>
           </div>
@@ -208,13 +204,8 @@ function Folder({ token, onOpenFolder }: FolderPageProps) {
         {/* Error Display */}
         {folderError && (
           <div className="mb-8 rounded-2xl border border-red-200 bg-red-50 p-5 shadow-md animate-fade-in">
-            <div className="flex items-start gap-3">
-              <span className="text-xl">⚠️</span>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-red-700">Error</p>
-                <p className="text-sm text-red-600 mt-1">{folderError}</p>
-              </div>
-            </div>
+            <p className="text-sm font-semibold text-red-700">Error</p>
+            <p className="text-sm text-red-600 mt-1">{folderError}</p>
           </div>
         )}
 
@@ -229,10 +220,7 @@ function Folder({ token, onOpenFolder }: FolderPageProps) {
             </div>
           ) : folders.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-stone-300 py-16">
-              <div className="rounded-full bg-orange-100 p-6">
-                <span className="text-5xl">📖</span>
-              </div>
-              <h3 className="mt-4 text-xl font-semibold text-stone-900">
+              <h3 className="text-xl font-semibold text-stone-900">
                 No Cookbooks Yet
               </h3>
               <p className="mt-2 text-stone-500">
@@ -250,16 +238,11 @@ function Folder({ token, onOpenFolder }: FolderPageProps) {
                     key={folder.folder_id}
                     className="group relative overflow-hidden rounded-2xl border border-stone-200 bg-gradient-to-br from-orange-50 to-amber-50 p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-orange-500/10"
                   >
-                    {/* Background Icon */}
-                    <div className="absolute -right-4 -bottom-4 text-9xl opacity-5 transition-transform group-hover:scale-110">
-                      📖
-                    </div>
-
                     <div className="relative z-10 flex flex-col gap-4">
                       {/* Icon */}
                       <div className="flex items-start justify-between">
-                        <div className="rounded-xl bg-gradient-to-br from-orange-500 to-red-500 p-3 shadow-lg shadow-orange-500/20">
-                          <span className="text-2xl">📖</span>
+                        <div className="rounded-xl bg-gradient-to-br from-orange-500 to-red-500 p-3 text-white shadow-lg shadow-orange-500/20">
+                          <BookOpenIcon className="h-5 w-5" />
                         </div>
                         <div className="flex gap-1">
                           <button
@@ -268,7 +251,7 @@ function Folder({ token, onOpenFolder }: FolderPageProps) {
                             className="rounded-lg p-2 text-stone-400 hover:bg-white hover:text-orange-600 transition-colors"
                             title="Open cookbook"
                           >
-                            <span className="text-lg">→</span>
+                            <ChevronRightIcon className="h-5 w-5" />
                           </button>
                         </div>
                       </div>
@@ -288,8 +271,8 @@ function Folder({ token, onOpenFolder }: FolderPageProps) {
                             {folder.name}
                           </h3>
                         )}
-                        <p className="mt-1 flex items-center gap-1 text-xs text-stone-500">
-                          📅 {new Date(folder.created_at).toLocaleDateString()}
+                        <p className="mt-1 text-xs text-stone-500">
+                          Created {new Date(folder.created_at).toLocaleDateString()}
                         </p>
                       </div>
 

@@ -110,12 +110,9 @@ function SearchPage({ token }: SearchPageProps) {
       <div className="mx-auto max-w-7xl px-4 py-8">
         {/* Hero Header */}
         <header className="mb-8 space-y-4 rounded-3xl bg-gradient-to-br from-orange-500 to-red-500 p-8 text-white shadow-xl shadow-orange-500/20 animate-fade-in">
-          <div className="flex items-center gap-3">
-            <span className="text-3xl">🔍</span>
-            <p className="text-sm font-semibold uppercase tracking-wider opacity-90">
-              Recipe Search
-            </p>
-          </div>
+          <p className="text-sm font-semibold uppercase tracking-wider opacity-90">
+            Recipe Search
+          </p>
           <h1 className="text-4xl font-bold sm:text-5xl">
             Find your next meal idea
           </h1>
@@ -138,7 +135,6 @@ function SearchPage({ token }: SearchPageProps) {
         {submittedQuery && !isLoading && (
           <section className="mb-6 space-y-3 rounded-2xl border border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50 p-5 shadow-md animate-slide-in">
             <div className="flex items-center gap-2">
-              <span className="text-lg">🎯</span>
               <p className="text-stone-700">
                 <span className="font-semibold text-stone-900">{results.length} recipes</span>{' '}
                 found for{' '}
@@ -148,7 +144,6 @@ function SearchPage({ token }: SearchPageProps) {
             {spellCorrected && correctedQuery && (
               <div className="border-t border-orange-200/50 pt-3">
                 <div className="flex items-center gap-2">
-                  <span>💡</span>
                   <p className="text-stone-600">
                     Did you mean:{' '}
                     <button
@@ -171,13 +166,8 @@ function SearchPage({ token }: SearchPageProps) {
         {/* Error Display */}
         {error && (
           <div className="mb-8 rounded-2xl border border-red-200 bg-red-50 p-5 shadow-md animate-fade-in">
-            <div className="flex items-start gap-3">
-              <span className="text-xl">⚠️</span>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-red-700">Search Error</p>
-                <p className="text-sm text-red-600 mt-1">{error}</p>
-              </div>
-            </div>
+            <p className="text-sm font-semibold text-red-700">Search Error</p>
+            <p className="text-sm text-red-600 mt-1">{error}</p>
           </div>
         )}
 
@@ -193,11 +183,8 @@ function SearchPage({ token }: SearchPageProps) {
         {/* Empty State */}
         {!isLoading && !submittedQuery && (
           <div className="flex flex-col items-center justify-center rounded-3xl border border-stone-200 bg-white/80 py-16 text-center">
-            <div className="rounded-full bg-orange-100 p-6">
-              <span className="text-6xl">🍳</span>
-            </div>
-            <h3 className="mt-4 text-xl font-semibold text-stone-900">
-              Start your culinary adventure
+            <h3 className="text-xl font-semibold text-stone-900">
+              Search for recipes
             </h3>
             <p className="mt-2 text-stone-500">
               Enter ingredients, dish names, or cuisines to discover recipes
@@ -208,10 +195,7 @@ function SearchPage({ token }: SearchPageProps) {
         {/* Results Grid */}
         {!isLoading && submittedQuery && results.length === 0 && (
           <div className="flex flex-col items-center justify-center rounded-3xl border border-stone-200 bg-white/80 py-16">
-            <div className="rounded-full bg-stone-100 p-6">
-              <span className="text-6xl">🔍</span>
-            </div>
-            <h3 className="mt-4 text-xl font-semibold text-stone-900">
+            <h3 className="text-xl font-semibold text-stone-900">
               No recipes found
             </h3>
             <p className="mt-2 text-stone-500">

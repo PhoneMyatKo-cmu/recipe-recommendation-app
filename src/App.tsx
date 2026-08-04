@@ -7,6 +7,7 @@ import FolderDetail from './pages/FolderDetail'
 import LandingPage from './pages/LandingPage'
 import RagPage from './pages/RagPage'
 import SearchPage from './pages/SearchPage'
+import { SearchIcon } from './components/shared/icons'
 
 type AuthResponse = {
   access_token?: string
@@ -298,12 +299,12 @@ function App() {
   }
 
   const navItems = [
-    { path: '/', label: 'Home', icon: '🏠' },
-    { path: '/search', label: 'Search', icon: '🔍' },
-    { path: '/folders', label: 'Cookbooks', icon: '📖' },
-    { path: '/bookmarks', label: 'Bookmarks', icon: '🔖' },
-    // { path: '/evaluate', label: 'Evaluate', icon: '📊' },
-    { path: '/rag', label: 'Ask AI', icon: '🤖' },
+    { path: '/', label: 'Home' },
+    { path: '/search', label: 'Search' },
+    { path: '/folders', label: 'Cookbooks' },
+    { path: '/bookmarks', label: 'Bookmarks' },
+    // { path: '/evaluate', label: 'Evaluate' },
+    { path: '/rag', label: 'Ask AI' },
   ]
 
   return (
@@ -315,8 +316,8 @@ function App() {
             className="flex items-center gap-2 cursor-pointer"
             onClick={() => navigate('/')}
           >
-            <div className="rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 p-2 shadow-lg shadow-orange-500/20">
-              <span className="text-xl">🍳</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 text-sm font-bold text-white shadow-sm">
+              RF
             </div>
             <span className="hidden font-bold text-lg text-stone-900 sm:block">
               RecipeFinder
@@ -336,8 +337,7 @@ function App() {
                     : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
                 }`}
               >
-                <span className="hidden sm:inline">{item.icon}</span>
-                <span className="ml-1 sm:ml-2">{item.label}</span>
+                {item.label}
               </button>
             ))}
           </div>
@@ -348,7 +348,7 @@ function App() {
               className="flex cursor-pointer items-center gap-2 rounded-full border border-stone-300 bg-stone-50/80 px-4 py-2.5 transition-all hover:border-orange-300 hover:bg-orange-50/50"
               onClick={() => navigate('/search')}
             >
-              <span className="text-stone-400">🔍</span>
+              <SearchIcon className="h-4 w-4 text-stone-400" />
               <span className="text-sm text-stone-500">Search recipes...</span>
               <div className="ml-auto flex items-center gap-1 text-xs text-stone-400">
                 <kbd className="rounded border border-stone-300 px-1.5 py-0.5">⌘</kbd>
@@ -364,8 +364,9 @@ function App() {
               type="button"
               onClick={() => navigate('/search')}
               className="rounded-full p-2 text-stone-600 hover:bg-stone-100 md:hidden"
+              aria-label="Search"
             >
-              <span className="text-xl">🔍</span>
+              <SearchIcon className="h-5 w-5" />
             </button>
 
             <span className="hidden rounded-full bg-gradient-to-br from-stone-100 to-stone-200 border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700 shadow-sm sm:inline-flex">

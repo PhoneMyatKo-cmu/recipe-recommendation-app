@@ -159,7 +159,7 @@ function FolderDetail({ token, folderId, onBack }: FolderDetailProps) {
           onClick={onBack}
           className="w-fit rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:border-blue-500 hover:bg-blue-50 hover:text-blue-700 active:scale-95"
         >
-          ← Back to Cookbooks
+          Back to Cookbooks
         </button>
 
         {isLoading ? (
@@ -169,23 +169,13 @@ function FolderDetail({ token, folderId, onBack }: FolderDetailProps) {
           </div>
         ) : error ? (
           <div className="rounded-3xl border border-red-200 bg-red-50 p-5 shadow-md animate-fade-in">
-            <div className="flex items-start gap-3">
-              <span className="text-xl">⚠️</span>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-red-700">Error</p>
-                <p className="text-sm text-red-600 mt-1">{error}</p>
-              </div>
-            </div>
+            <p className="text-sm font-semibold text-red-700">Error</p>
+            <p className="text-sm text-red-600 mt-1">{error}</p>
           </div>
         ) : (
           <>
             <header className="space-y-3 rounded-3xl border border-white/70 bg-gradient-to-br from-white/90 to-blue-50/30 p-6 shadow-lg shadow-slate-900/5 backdrop-blur-xl animate-fade-in">
-              <div className="flex items-center gap-3">
-                <div className="rounded-full bg-blue-100 p-2">
-                  <span className="text-2xl">📖</span>
-                </div>
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-600">Cookbook Detail</p>
-              </div>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-600">Cookbook Detail</p>
               <h1 className="text-4xl font-bold tracking-tight text-slate-900">
                 {folder?.name ?? `Cookbook #${folderId}`}
               </h1>
@@ -199,10 +189,7 @@ function FolderDetail({ token, folderId, onBack }: FolderDetailProps) {
               </div>
               {bookmarks.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12">
-                  {/* <div className="rounded-full bg-slate-100 p-4">
-                    <span className="text-4xl">🔖</span>
-                  </div> */}
-                  <p className="mt-4 text-slate-600">This cookbook is empty.</p>
+                  <p className="text-slate-600">This cookbook is empty.</p>
                   <p className="mt-2 text-sm text-slate-500">Search and bookmark recipes to get started!</p>
                 </div>
               ) : (
@@ -230,11 +217,10 @@ function FolderDetail({ token, folderId, onBack }: FolderDetailProps) {
                           </h3>
                           <div className="flex items-center gap-2">
                             <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
-                              ⭐ {bookmark.rating}/5
+                              ★ {bookmark.rating}/5
                             </span>
                           </div>
-                          <div className="mt-auto flex items-center gap-1 text-xs text-slate-500">
-                            {/* <span>📅</span> */}
+                          <div className="mt-auto text-xs text-slate-500">
                             {new Date(bookmark.created_at).toLocaleDateString()}
                           </div>
                         </div>
@@ -272,15 +258,15 @@ function FolderDetail({ token, folderId, onBack }: FolderDetailProps) {
 
             <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-slate-900/5">
               <div className="mb-5 flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
-                  <span>✨</span> Generated Suggestions
+                <h2 className="text-xl font-semibold text-slate-900">
+                  Generated Suggestions
                 </h2>
                 <button
                   type="button"
                   onClick={loadFolderRecommendations}
                   className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:border-blue-500 hover:bg-blue-50 hover:text-blue-700 active:scale-95"
                 >
-                  {hasGeneratedSuggestions ? 'Generate Again' : '✨ Generate Suggestions'}
+                  {hasGeneratedSuggestions ? 'Generate Again' : 'Generate Suggestions'}
                 </button>
               </div>
 
@@ -291,26 +277,17 @@ function FolderDetail({ token, folderId, onBack }: FolderDetailProps) {
                 </div>
               ) : !hasGeneratedSuggestions ? (
                 <div className="flex flex-col items-center justify-center py-12">
-                  <div className="rounded-full bg-slate-100 p-4">
-                    <span className="text-4xl">💡</span>
-                  </div>
-                  <p className="mt-4 text-slate-600">
+                  <p className="text-slate-600">
                     Click <span className="font-semibold text-slate-900">Generate Suggestions</span> to get personalized recommendations based on this cookbook's content.
                   </p>
                 </div>
               ) : recommendationError ? (
                 <div className="rounded-xl border border-red-200 bg-red-50 p-4">
-                  <div className="flex items-start gap-3">
-                    <span className="text-lg">⚠️</span>
-                    <p className="text-sm font-medium text-red-700">{recommendationError}</p>
-                  </div>
+                  <p className="text-sm font-medium text-red-700">{recommendationError}</p>
                 </div>
               ) : recommendations.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12">
-                  {/* <div className="rounded-full bg-slate-100 p-4">
-                    <span className="text-4xl">📭</span>
-                  </div> */}
-                  <p className="mt-4 text-slate-600">No suggestions available for this cookbook yet.</p>
+                  <p className="text-slate-600">No suggestions available for this cookbook yet.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

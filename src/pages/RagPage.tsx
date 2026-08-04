@@ -80,12 +80,7 @@ function RagPage({ token }: RagPageProps) {
     <main className="min-h-screen px-4 py-10">
       <section className="mx-auto flex max-w-6xl flex-col gap-6">
         <header className="space-y-3 rounded-3xl border border-white/70 bg-gradient-to-br from-white/90 to-white/80 p-6 shadow-lg shadow-slate-900/5 backdrop-blur-xl animate-fade-in">
-          <div className="flex items-center gap-3">
-            <div className="rounded-full bg-purple-100 p-2">
-              <span className="text-2xl">🤖</span>
-            </div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-purple-600">AI-Powered Recipe Assistant</p>
-          </div>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-purple-600">AI-Powered Recipe Assistant</p>
           <h1 className="text-4xl font-bold tracking-tight text-slate-900">Ask Recipes</h1>
           <p className="text-slate-600">Get intelligent answers about recipes with supporting context from your cookbook.</p>
         </header>
@@ -116,9 +111,7 @@ function RagPage({ token }: RagPageProps) {
                   Thinking...
                 </span>
               ) : (
-                <span className="flex items-center gap-2">
-                  <span>✨</span> Ask AI
-                </span>
+                'Ask AI'
               )}
             </button>
           </div>
@@ -126,13 +119,8 @@ function RagPage({ token }: RagPageProps) {
 
         {error && (
           <div className="rounded-3xl border border-red-200 bg-red-50 p-5 shadow-md animate-fade-in">
-            <div className="flex items-start gap-3">
-              <span className="text-xl">⚠️</span>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-red-700">Error</p>
-                <p className="text-sm text-red-600 mt-1">{error}</p>
-              </div>
-            </div>
+            <p className="text-sm font-semibold text-red-700">Error</p>
+            <p className="text-sm text-red-600 mt-1">{error}</p>
           </div>
         )}
 
@@ -141,7 +129,7 @@ function RagPage({ token }: RagPageProps) {
             <div className="space-y-4">
               <div className="flex items-center gap-2 text-sm">
                 <span className="rounded-full bg-purple-100 px-3 py-1 font-medium text-purple-700">
-                  🧠 {result.model}
+                  {result.model}
                 </span>
               </div>
               <div className="rounded-xl border border-purple-200 bg-purple-50 p-4">
@@ -150,7 +138,6 @@ function RagPage({ token }: RagPageProps) {
               </div>
               {result.retrieved.length > 0 && (
                 <div className="flex items-center gap-2 pt-2">
-                  <span className="text-lg">📖</span>
                   <p className="text-sm text-slate-700">
                     Based on{' '}
                     <button

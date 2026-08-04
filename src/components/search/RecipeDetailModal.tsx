@@ -239,10 +239,7 @@ function RecipeDetailModal({
       />
       <section className="relative z-10 max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-3xl border border-white/70 bg-white/95 shadow-2xl shadow-slate-900/20 animate-scale-in">
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-gradient-to-r from-white to-slate-50 px-4 py-4 backdrop-blur-xl">
-          <div className="flex items-center gap-2">
-            {/* <span className="text-2xl">🍽️</span> */}
-            <p className="text-sm font-bold text-slate-700">Recipe Detail</p>
-          </div>
+          <p className="text-sm font-bold text-slate-700">Recipe Detail</p>
           <button
             type="button"
             onClick={onClose}
@@ -261,13 +258,8 @@ function RecipeDetailModal({
         {!isLoading && error && (
           <div className="p-6">
             <div className="rounded-xl border border-red-200 bg-red-50 p-4">
-              <div className="flex items-start gap-3">
-                {/* <span className="text-xl">⚠️</span> */}
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-red-700">Error</p>
-                  <p className="text-sm text-red-600 mt-1">{error}</p>
-                </div>
-              </div>
+              <p className="text-sm font-semibold text-red-700">Error</p>
+              <p className="text-sm text-red-600 mt-1">{error}</p>
             </div>
           </div>
         )}
@@ -309,33 +301,25 @@ function RecipeDetailModal({
                         : 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30'
                     }`}
                   >
-                    {showBookmarkPanel ? '✕ Cancel' : ' Bookmark Recipe'}
+                    {showBookmarkPanel ? 'Cancel' : 'Bookmark Recipe'}
                   </button>
                 )}
               </header>
 
               {bookmarkMessage && (
                 <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 animate-fade-in">
-                  <div className="flex items-center gap-2">
-                    <span className="text-green-600">✅</span>
-                    <p className="text-sm font-medium text-green-700">{bookmarkMessage}</p>
-                  </div>
+                  <p className="text-sm font-medium text-green-700">{bookmarkMessage}</p>
                 </div>
               )}
               {bookmarkError && (
                 <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 animate-fade-in">
-                  <div className="flex items-center gap-2">
-                    <span className="text-red-600">⚠️</span>
-                    <p className="text-sm font-medium text-red-700">{bookmarkError}</p>
-                  </div>
+                  <p className="text-sm font-medium text-red-700">{bookmarkError}</p>
                 </div>
               )}
 
               {allowBookmark && showBookmarkPanel && (
                 <section className="space-y-4 rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100 p-5 animate-scale-in">
-                  <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
-                    <span>📖</span> Add Bookmark
-                  </h3>
+                  <h3 className="text-lg font-semibold text-slate-900">Add Bookmark</h3>
 
                   {isLoadingFolders && (
                     <div className="flex items-center gap-2 text-sm text-slate-600">
@@ -376,11 +360,11 @@ function RecipeDetailModal({
                           onChange={(event) => setRating(Number(event.target.value))}
                           className="h-11 w-24 rounded-lg border border-slate-300 bg-white px-3 text-slate-800 shadow-sm transition-all duration-200 hover:border-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20"
                         >
-                          <option value={1}>⭐ 1</option>
-                          <option value={2}>⭐ 2</option>
-                          <option value={3}>⭐ 3</option>
-                          <option value={4}>⭐ 4</option>
-                          <option value={5}>⭐ 5</option>
+                          <option value={1}>1</option>
+                          <option value={2}>2</option>
+                          <option value={3}>3</option>
+                          <option value={4}>4</option>
+                          <option value={5}>5</option>
                         </select>
                       </div>
 
@@ -405,8 +389,7 @@ function RecipeDetailModal({
               )}
 
               <section className="grid grid-cols-1 gap-3 rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100 p-4 sm:grid-cols-2 lg:grid-cols-3">
-                <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-                  <span className="text-2xl">⭐</span>
+                <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
                   <div>
                     <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Rating</p>
                     <p className="text-sm font-bold text-slate-900">
@@ -416,8 +399,7 @@ function RecipeDetailModal({
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-                  <span className="text-2xl">👥</span>
+                <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
                   <div>
                     <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Votes</p>
                     <p className="text-sm font-bold text-slate-900">
@@ -425,8 +407,7 @@ function RecipeDetailModal({
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-                  <span className="text-2xl">⏱️</span>
+                <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
                   <div>
                     <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Prep</p>
                     <p className="text-sm font-bold text-slate-900">
@@ -434,8 +415,7 @@ function RecipeDetailModal({
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-                  <span className="text-2xl">🔥</span>
+                <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
                   <div>
                     <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Cook</p>
                     <p className="text-sm font-bold text-slate-900">
@@ -443,8 +423,7 @@ function RecipeDetailModal({
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-                  <span className="text-2xl">🍽️</span>
+                <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
                   <div>
                     <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Servings</p>
                     <p className="text-sm font-bold text-slate-900">
@@ -452,8 +431,7 @@ function RecipeDetailModal({
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-                  <span className="text-2xl">🔥</span>
+                <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
                   <div>
                     <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Calories</p>
                     <p className="text-sm font-bold text-slate-900">

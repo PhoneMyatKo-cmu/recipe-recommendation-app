@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { toProxyImageUrl } from '../../utils/imageUrl'
+import { ClockIcon, HeartIcon, StarIcon } from './icons'
 
 export type RecipeCardData = {
   recipe_id: number
@@ -101,23 +102,22 @@ function RecipeCard({
                   ? 'bg-red-500 text-white shadow-lg shadow-red-500/30'
                   : 'bg-white/80 text-stone-600 hover:bg-white'
               }`}
+              aria-label={isHeartFilled ? 'Remove from saved' : 'Save recipe'}
             >
-              <span className={`text-lg ${isAnimating ? 'heart-burst' : ''}`}>
-                {isHeartFilled ? '❤️' : '🤍'}
-              </span>
+              <HeartIcon className={`h-4 w-4 ${isAnimating ? 'heart-burst' : ''}`} filled={isHeartFilled} />
             </button>
           )}
 
           {/* Quick Metadata on Image */}
           <div className="absolute bottom-3 left-3 right-3 flex items-center gap-2">
             {totalCookTime && (
-              <div className="rounded-full bg-white/90 backdrop-blur-sm px-2.5 py-1 text-xs font-medium text-stone-700">
-                🕐 {totalCookTime}m
+              <div className="flex items-center gap-1 rounded-full bg-white/90 backdrop-blur-sm px-2.5 py-1 text-xs font-medium text-stone-700">
+                <ClockIcon /> {totalCookTime}m
               </div>
             )}
             {displayRating && (
-              <div className="rounded-full bg-white/90 backdrop-blur-sm px-2.5 py-1 text-xs font-medium text-amber-600">
-                ⭐ {displayRating.toFixed(1)}
+              <div className="flex items-center gap-1 rounded-full bg-white/90 backdrop-blur-sm px-2.5 py-1 text-xs font-medium text-amber-600">
+                <StarIcon /> {displayRating.toFixed(1)}
               </div>
             )}
           </div>
@@ -129,10 +129,7 @@ function RecipeCard({
             {recipe.name}
           </h3>
           {difficultyLevel && (
-            <div className="flex items-center gap-1.5 text-xs text-stone-500">
-              <span>🔥</span>
-              <span>{difficultyLevel}</span>
-            </div>
+            <div className="text-xs text-stone-500">{difficultyLevel}</div>
           )}
         </div>
       </article>
@@ -158,8 +155,16 @@ function RecipeCard({
             {recipe.name}
           </h3>
           <div className="mt-1 flex items-center gap-3 text-xs text-stone-500">
-            {totalCookTime && <span>🕐 {totalCookTime}m</span>}
-            {displayRating && <span>⭐ {displayRating.toFixed(1)}</span>}
+            {totalCookTime && (
+              <span className="flex items-center gap-1">
+                <ClockIcon /> {totalCookTime}m
+              </span>
+            )}
+            {displayRating && (
+              <span className="flex items-center gap-1 text-amber-600">
+                <StarIcon /> {displayRating.toFixed(1)}
+              </span>
+            )}
           </div>
         </div>
         {onSave && (
@@ -171,10 +176,9 @@ function RecipeCard({
                 ? 'bg-red-500 text-white'
                 : 'bg-stone-100 text-stone-400 hover:bg-stone-200'
             }`}
+            aria-label={isHeartFilled ? 'Remove from saved' : 'Save recipe'}
           >
-            <span className={`text-sm ${isAnimating ? 'heart-burst' : ''}`}>
-              {isHeartFilled ? '❤️' : '🤍'}
-            </span>
+            <HeartIcon className={`h-4 w-4 ${isAnimating ? 'heart-burst' : ''}`} filled={isHeartFilled} />
           </button>
         )}
       </article>
@@ -217,10 +221,9 @@ function RecipeCard({
                 ? 'bg-red-500 text-white shadow-lg shadow-red-500/30'
                 : 'bg-white/80 text-stone-600 hover:bg-white'
             }`}
+            aria-label={isHeartFilled ? 'Remove from saved' : 'Save recipe'}
           >
-            <span className={`text-lg ${isAnimating ? 'heart-burst' : ''}`}>
-              {isHeartFilled ? '❤️' : '🤍'}
-            </span>
+            <HeartIcon className={`h-4 w-4 ${isAnimating ? 'heart-burst' : ''}`} filled={isHeartFilled} />
           </button>
         )}
       </div>
@@ -235,19 +238,18 @@ function RecipeCard({
         <div className="flex flex-wrap items-center gap-2 text-xs">
           {totalCookTime && (
             <div className="flex items-center gap-1 rounded-full bg-stone-100 px-2 py-1 text-stone-600">
-              <span>🕐</span>
+              <ClockIcon />
               <span className="font-medium">{totalCookTime}m</span>
             </div>
           )}
           {difficultyLevel && (
-            <div className="flex items-center gap-1 rounded-full bg-stone-100 px-2 py-1 text-stone-600">
-              <span>🔥</span>
-              <span className="font-medium">{difficultyLevel}</span>
+            <div className="rounded-full bg-stone-100 px-2 py-1 font-medium text-stone-600">
+              {difficultyLevel}
             </div>
           )}
           {displayRating && (
             <div className="flex items-center gap-1 rounded-full bg-amber-50 px-2 py-1 text-amber-600">
-              <span>⭐</span>
+              <StarIcon />
               <span className="font-medium">{displayRating.toFixed(1)}</span>
             </div>
           )}

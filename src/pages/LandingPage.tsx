@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState, useRef } from 'react'
 import RecipeDetailModal from '../components/search/RecipeDetailModal'
 import RecipeCard, { type RecipeCardData } from '../components/shared/RecipeCard'
 import RecipeCardSkeleton from '../components/shared/RecipeCardSkeleton'
+import { ChevronLeftIcon, ChevronRightIcon, RefreshIcon } from '../components/shared/icons'
 
 type RecommendationItem = {
   recipe_id: number
@@ -212,25 +213,28 @@ function LandingPage({ token, bookmarkCount = null }: LandingPageProps) {
                 onClick={onRefresh}
                 disabled={isLoading}
                 className="rounded-lg p-2 text-stone-500 hover:bg-stone-100 hover:text-stone-700 disabled:opacity-50"
+                aria-label="Refresh"
               >
-                🔄
+                <RefreshIcon />
               </button>
             )}
             <div className="flex gap-1">
               <button
                 type="button"
                 onClick={() => scroll('left')}
-                className="rounded-full border border-stone-300 p-2 hover:bg-stone-100 disabled:opacity-30"
+                className="rounded-full border border-stone-300 p-2 text-stone-600 hover:bg-stone-100 disabled:opacity-30"
                 disabled={scrollPosition <= 0}
+                aria-label="Scroll left"
               >
-                ←
+                <ChevronLeftIcon />
               </button>
               <button
                 type="button"
                 onClick={() => scroll('right')}
-                className="rounded-full border border-stone-300 p-2 hover:bg-stone-100 disabled:opacity-30"
+                className="rounded-full border border-stone-300 p-2 text-stone-600 hover:bg-stone-100 disabled:opacity-30"
+                aria-label="Scroll right"
               >
-                →
+                <ChevronRightIcon />
               </button>
             </div>
           </div>
@@ -244,8 +248,7 @@ function LandingPage({ token, bookmarkCount = null }: LandingPageProps) {
           </div>
         ) : items.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-2xl border border-stone-200 bg-stone-50 py-12">
-            <span className="text-4xl">🍽️</span>
-            <p className="mt-3 text-stone-500">{emptyMessage}</p>
+            <p className="text-stone-500">{emptyMessage}</p>
           </div>
         ) : (
           <div
@@ -274,9 +277,7 @@ function LandingPage({ token, bookmarkCount = null }: LandingPageProps) {
         {/* Hero Section */}
         <section className="mb-10 overflow-hidden rounded-3xl bg-gradient-to-br from-orange-500 via-amber-500 to-red-500 p-8 text-white shadow-2xl shadow-orange-500/20 animate-fade-in">
           <div className="relative z-10">
-            <p className="mb-2 text-lg font-medium opacity-90">
-              {getGreeting()}! Ready to cook something amazing?
-            </p>
+            <p className="mb-2 text-lg font-medium opacity-90">{getGreeting()}</p>
             <h1 className="mb-4 text-4xl font-bold sm:text-5xl">
               Your Personal Recipe Collection
             </h1>
@@ -286,7 +287,6 @@ function LandingPage({ token, bookmarkCount = null }: LandingPageProps) {
             </p>
             <div className="mt-6 flex flex-wrap gap-4">
               <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 backdrop-blur-sm">
-                <span className="text-xl">📖</span>
                 <span className="font-semibold">{bookmarkCount ?? 0} recipes saved</span>
               </div>
               <button
@@ -294,25 +294,16 @@ function LandingPage({ token, bookmarkCount = null }: LandingPageProps) {
                 onClick={() => window.location.href = '/search'}
                 className="rounded-full bg-white px-6 py-2.5 font-semibold text-orange-600 shadow-lg transition-all hover:scale-105 hover:shadow-xl"
               >
-                Explore Recipes →
+                Explore Recipes
               </button>
             </div>
-          </div>
-          {/* Background decoration */}
-          <div className="absolute right-0 top-0 h-full w-1/3 opacity-10">
-            <span className="text-[200px]">🍳</span>
           </div>
         </section>
 
         {error && (
           <div className="mb-8 rounded-2xl border border-red-200 bg-red-50 p-5 shadow-md animate-fade-in">
-            <div className="flex items-start gap-3">
-              <span className="text-xl">⚠️</span>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-red-700">Error</p>
-                <p className="text-sm text-red-600 mt-1">{error}</p>
-              </div>
-            </div>
+            <p className="text-sm font-semibold text-red-700">Error</p>
+            <p className="text-sm text-red-600 mt-1">{error}</p>
           </div>
         )}
 
@@ -320,7 +311,7 @@ function LandingPage({ token, bookmarkCount = null }: LandingPageProps) {
         <div className="space-y-8">
           {shouldShowPopular && (
             <Carousel
-              title="🔥 Trending This Week"
+              title="Trending This Week"
               items={popularRecs}
               isLoading={isLoadingPopular}
               emptyMessage="No trending recipes available."
@@ -330,7 +321,7 @@ function LandingPage({ token, bookmarkCount = null }: LandingPageProps) {
           )}
 
           <Carousel
-            title="✨ Picked For You"
+            title="Picked For You"
             items={allRecs}
             isLoading={isLoadingAll}
             emptyMessage="Start saving recipes to get personalized recommendations!"
@@ -339,7 +330,7 @@ function LandingPage({ token, bookmarkCount = null }: LandingPageProps) {
           />
 
           <Carousel
-            title="🎲 Discover Something New"
+            title="Discover Something New"
             items={randomRecs}
             isLoading={isLoadingRandom}
             emptyMessage="No recipes available."

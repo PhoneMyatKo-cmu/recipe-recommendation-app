@@ -117,12 +117,7 @@ function EvaluatePage({ token }: EvaluatePageProps) {
     <main className="min-h-screen px-4 py-10">
       <section className="mx-auto flex max-w-6xl flex-col gap-6">
         <header className="space-y-3 rounded-3xl border border-white/70 bg-gradient-to-br from-white/90 to-purple-50/30 p-6 shadow-lg shadow-slate-900/5 backdrop-blur-xl animate-fade-in">
-          <div className="flex items-center gap-3">
-            <div className="rounded-full bg-purple-100 p-2">
-              <span className="text-2xl">📊</span>
-            </div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-purple-600">Evaluation</p>
-          </div>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-purple-600">Evaluation</p>
           <h1 className="text-4xl font-bold tracking-tight text-slate-900">Recommendation Evaluation</h1>
           <p className="text-slate-600">Compare recommendation methods with leave-out style Precision@K evaluation.</p>
         </header>
@@ -183,9 +178,7 @@ function EvaluatePage({ token }: EvaluatePageProps) {
                     Evaluating...
                   </span>
                 ) : (
-                  <span className="flex items-center justify-center gap-2">
-                    <span>▶️</span> Run Evaluation
-                  </span>
+                  'Run Evaluation'
                 )}
               </button>
             </div>
@@ -194,35 +187,22 @@ function EvaluatePage({ token }: EvaluatePageProps) {
 
         {error && (
           <div className="rounded-3xl border border-red-200 bg-red-50 p-5 shadow-md animate-fade-in">
-            <div className="flex items-start gap-3">
-              <span className="text-xl">⚠️</span>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-red-700">Error</p>
-                <p className="text-sm text-red-600 mt-1">{error}</p>
-              </div>
-            </div>
+            <p className="text-sm font-semibold text-red-700">Error</p>
+            <p className="text-sm text-red-600 mt-1">{error}</p>
           </div>
         )}
 
         {result && (
           <>
             <section className="rounded-3xl border border-white/70 bg-gradient-to-br from-purple-50 to-indigo-50 p-5 shadow-lg shadow-slate-900/5 animate-scale-in">
-              <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
-                <span>⚙️</span> Evaluation Setup
-              </h2>
+              <h2 className="text-xl font-semibold text-slate-900">Evaluation Setup</h2>
               <div className="mt-3 space-y-2">
-                <div className="flex items-start gap-2">
-                  <span className="text-slate-500">📋</span>
-                  <p className="text-sm text-slate-700">
-                    <span className="font-medium">Seed recipes:</span> {result.seed_recipe_ids.length > 0 ? result.seed_recipe_ids.join(', ') : 'None'}
-                  </p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <span className="text-slate-500">🎯</span>
-                  <p className="text-sm text-slate-700">
-                    <span className="font-medium">Holdout recipes (ground truth):</span> {result.holdout_recipe_ids.length > 0 ? result.holdout_recipe_ids.join(', ') : 'None'}
-                  </p>
-                </div>
+                <p className="text-sm text-slate-700">
+                  <span className="font-medium">Seed recipes:</span> {result.seed_recipe_ids.length > 0 ? result.seed_recipe_ids.join(', ') : 'None'}
+                </p>
+                <p className="text-sm text-slate-700">
+                  <span className="font-medium">Holdout recipes (ground truth):</span> {result.holdout_recipe_ids.length > 0 ? result.holdout_recipe_ids.join(', ') : 'None'}
+                </p>
               </div>
             </section>
 
