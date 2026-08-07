@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Analytics } from '@vercel/analytics/react'
 import AllBookmarks from './pages/AllBookmarks'
 import AuthPage, { type AuthMode } from './pages/AuthPage'
 import EvaluatePage from './pages/EvaluatePage'
@@ -277,18 +278,21 @@ function App() {
 
   if (!isAuthenticated) {
     return (
-      <AuthPage
-        mode={authMode}
-        isSubmitting={isSubmitting}
-        error={authError}
-        message={authMessage}
-        onSubmit={authMode === 'register' ? handleRegister : handleLogin}
-        onSwitchMode={(mode) => {
-          setAuthError(null)
-          setAuthMessage(null)
-          navigate(mode === 'register' ? '/register' : '/login')
-        }}
-      />
+      <>
+        <AuthPage
+          mode={authMode}
+          isSubmitting={isSubmitting}
+          error={authError}
+          message={authMessage}
+          onSubmit={authMode === 'register' ? handleRegister : handleLogin}
+          onSwitchMode={(mode) => {
+            setAuthError(null)
+            setAuthMessage(null)
+            navigate(mode === 'register' ? '/register' : '/login')
+          }}
+        />
+        <Analytics />
+      </>
     )
   }
 
@@ -308,8 +312,9 @@ function App() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50/50 to-orange-50/30">
-      <header className="sticky top-0 z-50 border-b border-stone-200/60 bg-white/95 backdrop-blur-xl shadow-sm">
+    <>
+      <div className="min-h-screen bg-gradient-to-br from-amber-50/50 to-orange-50/30">
+        <header className="sticky top-0 z-50 border-b border-stone-200/60 bg-white/95 backdrop-blur-xl shadow-sm">
         <nav className="mx-auto flex w-full max-w-7xl items-center gap-6 px-4 py-3">
           {/* Logo */}
           <div
@@ -382,10 +387,12 @@ function App() {
             </button>
           </div>
         </nav>
-      </header>
+        </header>
 
-      {authenticatedPage}
-    </div>
+        {authenticatedPage}
+      </div>
+      <Analytics />
+    </>
   )
 }
 
